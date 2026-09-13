@@ -13,17 +13,28 @@ endif()
 # Output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
+# Core source files
+set(CORE_SOURCES
+    src/core/types/id.h
+    src/core/types/timestamp.h
+    src/core/types/runtime_state.h
+    src/core/core_types.h
+)
+
+# Runtime source files
+set(RUNTIME_SOURCES
+    src/runtime/runtime.h
+    src/runtime/runtime.cpp
+)
+
 # Main executable
-add_executable(VisionLab src/main.cpp)
+add_executable(VisionLab
+    src/main.cpp
+    ${CORE_SOURCES}
+    ${RUNTIME_SOURCES}
+)
 
 # Set target properties
 set_target_properties(VisionLab PROPERTIES
     VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}"
 )
-
-# C++20 features
-if(MSVC)
-    target_compile_options(VisionLab PRIVATE /std:c++latest)
-else()
-    target_compile_options(VisionLab PRIVATE -std=c++20)
-endif()
