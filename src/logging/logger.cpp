@@ -1,6 +1,7 @@
 #include "logger.h"
 
 #include <chrono>
+#include <ctime>
 #include <filesystem>
 #include <iomanip>
 #include <iostream>
@@ -69,10 +70,6 @@ void Logger::error(const std::string& message) {
 void Logger::log(LogLevel level, const std::string& message) {
     std::lock_guard<std::mutex> lock(mutex_);
 
-    if (!initialized_) {
-        return;
-    }
-
     const auto now = std::chrono::system_clock::now();
     const std::time_t time = std::chrono::system_clock::to_time_t(now);
 
@@ -92,7 +89,13 @@ void Logger::log(LogLevel level, const std::string& message) {
     const std::string line =
         "[" + timestamp.str() + "] [" + level_text + "] " + message;
 
+    // Console output is always available.
     std::cout << line << std::endl;
+
+    // File output requires successful initialization.
+    if (!initialized_) {
+        return;
+    }
 
     if (file_.is_open()) {
         file_ << line << std::endl;
