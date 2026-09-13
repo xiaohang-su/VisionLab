@@ -4,7 +4,7 @@ A modular computer vision experimentation and runtime platform for Windows 10/11
 
 ## Version
 
-**V0.2 Phase 1** - Core and Runtime Foundation
+**V0.2 Phase 2.1 - Logger Foundation
 
 ## Current Status
 
