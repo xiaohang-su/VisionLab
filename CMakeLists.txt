@@ -22,10 +22,16 @@ set(RUNTIME_SOURCES
     src/runtime/runtime.cpp
 )
 
+set(LOGGING_SOURCES
+    src/logging/logger.h
+    src/logging/logger.cpp
+)
+
 add_executable(VisionLab
     src/main.cpp
     ${CORE_SOURCES}
     ${RUNTIME_SOURCES}
+    ${LOGGING_SOURCES}
 )
 
 set_target_properties(VisionLab PROPERTIES
