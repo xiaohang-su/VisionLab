@@ -23,6 +23,7 @@ bool Runtime::initialize() {
                 visionlab::core::types::to_string(state_)
             )
         );
+
         return false;
     }
 
@@ -31,6 +32,7 @@ bool Runtime::initialize() {
     }
 
     state_ = RuntimeState::Initialized;
+
     logger_.info("Runtime initialized.");
 
     return true;
@@ -44,10 +46,12 @@ bool Runtime::start() {
                 visionlab::core::types::to_string(state_)
             )
         );
+
         return false;
     }
 
     state_ = RuntimeState::Running;
+
     logger_.info("Runtime started.");
 
     return true;
@@ -61,10 +65,12 @@ bool Runtime::stop() {
                 visionlab::core::types::to_string(state_)
             )
         );
+
         return false;
     }
 
     state_ = RuntimeState::Stopped;
+
     logger_.info("Runtime stopped.");
 
     return true;
