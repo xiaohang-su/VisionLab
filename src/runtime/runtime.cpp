@@ -1,5 +1,7 @@
 #include "runtime.h"
 
+#include <string>
+
 namespace visionlab::runtime {
 
 Runtime::Runtime()
