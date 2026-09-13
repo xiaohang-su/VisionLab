@@ -71,7 +71,8 @@ void Logger::log(LogLevel level, const std::string& message) {
     std::lock_guard<std::mutex> lock(mutex_);
 
     const auto now = std::chrono::system_clock::now();
-    const std::time_t time = std::chrono::system_clock::to_time_t(now);
+    const std::time_t time =
+        std::chrono::system_clock::to_time_t(now);
 
     std::tm local_time{};
 
@@ -82,12 +83,17 @@ void Logger::log(LogLevel level, const std::string& message) {
 #endif
 
     std::ostringstream timestamp;
-    timestamp << std::put_time(&local_time, "%Y-%m-%d %H:%M:%S");
+    timestamp << std::put_time(
+        &local_time,
+        "%Y-%m-%d %H:%M:%S"
+    );
 
-    const std::string level_text = level_to_string(level);
+    const std::string level_text =
+        level_to_string(level);
 
     const std::string line =
-        "[" + timestamp.str() + "] [" + level_text + "] " + message;
+        "[" + timestamp.str() + "] [" +
+        level_text + "] " + message;
 
     // Console output is always available.
     std::cout << line << std::endl;
