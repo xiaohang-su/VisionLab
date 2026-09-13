@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../core/core_types.h"
+#include "../logging/logger.h"
 
 namespace visionlab::runtime {
 
@@ -20,6 +21,7 @@ public:
 
 private:
     RuntimeState state_;
+    visionlab::logging::Logger logger_;
 };
 
 }
