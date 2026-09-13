@@ -1,0 +1,87 @@
+# CMake
+CMakeCache.txt
+CMakeFiles/
+CMakeUserPresets.json
+cmake_install.cmake
+Makefile
+
+# Build directories
+build/
+Build/
+DEBUG/
+Debug/
+Release/
+Release-*/
+x64/
+x86/
+ARM64/
+
+# Visual Studio
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln.DotSettings
+*.sln.DotSettings.user
+
+# Visual Studio Code
+.vscode/
+*.code-workspace
+
+# Object and library files
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.exp
+*.ilk
+*.pdb
+*.rlib
+
+# Executables
+*.exe
+*.out
+*.app
+*.exe.a
+*.exe.so
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+*.xcworkspace/
+*.playground
+*.xcodeproj/
+
+# Logs
+logs/
+*.log
+
+# Runtime outputs
+bin/
+out/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
