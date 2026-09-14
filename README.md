@@ -4,11 +4,11 @@ A modular computer vision experimentation and runtime platform for Windows 10/11
 
 ## Version
 
-**V0.5.0 - Detection Module Architecture**
+**V0.6.0 - Tracking Module Architecture**
 
 ## Current Status
 
-VisionLab V0.5.0 is released.
+VisionLab V0.6.0 is released.
 
 The current foundation includes:
 
@@ -24,8 +24,10 @@ The current foundation includes:
 - Runtime frame loop connecting Capture → VisionPipeline
 - Detection module architecture (Detector interface + DetectionResult)
 - MockDetector for data flow validation
+- Tracking module architecture (Tracker interface + TrackResult)
+- MockTracker for data flow validation
 
-V0.5 does **not** include AI inference, ONNX, YOLO, or GPU acceleration.
+V0.6 does **not** include SORT, DeepSORT, ByteTrack, Kalman Filter, AI tracking, or GPU acceleration.
 
 The project currently uses only the C++20 standard library and Windows SDK.
 No third-party dependencies.
@@ -166,12 +168,12 @@ Windows-specific sources are excluded via `if(WIN32)` in CMake.
 | V0.4.0 | Vision Pipeline architecture (VisionProcessor + VisionPipeline + ImageView) |
 | V0.4.1 | Runtime frame loop connecting Capture → VisionPipeline |
 | V0.5.0 | Detection module architecture (Detector + DetectionResult + MockDetector) |
+| V0.6.0 | Tracking module architecture (Tracker + TrackResult + MockTracker) |
 
 ---
 
 ## Roadmap
 
-- **V0.6**: Tracking module
 - **V0.7**: Analysis module
 - **V0.8**: UI layer
 - **V1.0**: Full platform release
