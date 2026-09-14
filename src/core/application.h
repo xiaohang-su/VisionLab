@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/module_manager.h"
+#include "module_manager.h"
 #include "runtime/runtime.h"
 #include "logging/logger.h"
 #include "config/config.h"
