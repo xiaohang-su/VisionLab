@@ -5,3 +5,4 @@
 #include "types/runtime_state.h"
 #include "types/frame.h"
 #include "types/detection.h"
+#include "types/track.h"
