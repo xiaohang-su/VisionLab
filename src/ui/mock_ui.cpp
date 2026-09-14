@@ -65,13 +65,15 @@ bool MockUI::render(
     if (context.metrics != nullptr)
     {
         std::printf(
-            " | cap=%.2fms vis=%.2fms det=%.2fms trk=%.2fms ana=%.2fms rnd=%.2fms",
+            " | cap=%.2fms vis=%.2fms det=%.2fms trk=%.2fms ana=%.2fms rnd=%.2fms log=%.2fms(%llu)",
             context.metrics->capture_ms,
             context.metrics->vision_ms,
             context.metrics->detection_ms,
             context.metrics->tracking_ms,
             context.metrics->analysis_ms,
-            context.metrics->render_ms
+            context.metrics->render_ms,
+            context.metrics->logger_ms,
+            static_cast<unsigned long long>(context.metrics->log_count)
         );
     }
 

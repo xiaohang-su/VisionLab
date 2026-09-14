@@ -194,6 +194,8 @@ void Application::run()
         ui_context_.metrics = &metrics_;
 
         metrics_.frame_count = frame_count;
+        metrics_.logger_ms = logger_.total_log_ms();
+        metrics_.log_count = logger_.log_count();
 
         {
             const auto now = std::chrono::steady_clock::now();

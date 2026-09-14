@@ -68,6 +68,8 @@ void Logger::error(const std::string& message) {
 }
 
 void Logger::log(LogLevel level, const std::string& message) {
+    const auto log_start = std::chrono::steady_clock::now();
+
     std::lock_guard<std::mutex> lock(mutex_);
 
     const auto now = std::chrono::system_clock::now();
@@ -100,6 +102,10 @@ void Logger::log(LogLevel level, const std::string& message) {
 
     // File output requires successful initialization.
     if (!initialized_) {
+        const auto log_end = std::chrono::steady_clock::now();
+        total_log_ms_ += std::chrono::duration_cast<
+            std::chrono::microseconds>(log_end - log_start).count() / 1000.0;
+        log_count_++;
         return;
     }
 
@@ -107,6 +113,25 @@ void Logger::log(LogLevel level, const std::string& message) {
         file_ << line << std::endl;
         file_.flush();
     }
+
+    const auto log_end = std::chrono::steady_clock::now();
+    total_log_ms_ += std::chrono::duration_cast<
+        std::chrono::microseconds>(log_end - log_start).count() / 1000.0;
+    log_count_++;
+}
+
+
+
+double Logger::total_log_ms() const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return total_log_ms_;
+}
+
+
+
+std::uint64_t Logger::log_count() const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return log_count_;
 }
 
 const char* Logger::level_to_string(LogLevel level) const {

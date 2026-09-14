@@ -577,6 +577,9 @@ void ImGuiRenderer::build_ui(
         ImGui::Text("Tracking:  %.2f ms", context.metrics->tracking_ms);
         ImGui::Text("Analysis:  %.2f ms", context.metrics->analysis_ms);
         ImGui::Text("Render:    %.2f ms", context.metrics->render_ms);
+        ImGui::Text("Logger:    %.2f ms (%llu calls)",
+            context.metrics->logger_ms,
+            static_cast<unsigned long long>(context.metrics->log_count));
     }
 
     ImGui::EndChild();
