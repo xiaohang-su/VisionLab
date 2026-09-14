@@ -4,11 +4,11 @@ A modular computer vision experimentation and runtime platform for Windows 10/11
 
 ## Version
 
-**V0.9.0 - Runtime Metrics & Frame Timing**
+**V0.9.1 - Logger Performance Analysis**
 
 ## Current Status
 
-VisionLab V0.9.0 is released.
+VisionLab V0.9.1 is released.
 
 The current foundation includes:
 
@@ -38,6 +38,7 @@ The current foundation includes:
 - RuntimeMetrics with per-stage frame timing (capture/vision/detection/tracking/analysis/render)
 - Timer utility (steady_clock, microsecond precision)
 - FPS measurement and UI performance display
+- Logger timing instrumentation (total_log_ms, log_count) for performance analysis
 
 V0.9 introduces **runtime performance measurement**:
 
@@ -45,6 +46,14 @@ V0.9 introduces **runtime performance measurement**:
 - FPS calculation based on elapsed time
 - RuntimeMetrics exposed via UIContext for display
 - Both MockUI and ImGuiRenderer show performance metrics
+
+V0.9.1 adds **logger performance measurement**:
+
+- Logger internal timing (steady_clock, includes lock + format + console + file flush)
+- RuntimeMetrics.logger_ms and RuntimeMetrics.log_count (cumulative)
+- No behavior change: synchronous IO, per-call flush, original API preserved
+- No async buffering, no thread, no queue introduced
+- Purpose: measure whether Logger is a bottleneck before optimizing
 
 V0.9 does **not** include Logger buffer optimization, FramePool, memory pool, benchmark system, AI Runtime, ONNX Runtime, CUDA, or TensorRT.
 
@@ -191,10 +200,12 @@ Windows-specific sources are excluded via `if(WIN32)` in CMake.
 | V0.8.0 | UI architecture layer (UIRenderer + UIContext + MockUI) |
 | V0.8.1 | ImGui DX11 UI renderer (Frame viewer + overlays + analysis panel) |
 | V0.9.0 | Runtime metrics with per-stage frame timing (Timer + RuntimeMetrics + UI display) |
+| V0.9.1 | Logger performance analysis (timing instrumentation, no behavior change) |
 
 ---
 
 ## Roadmap
 
-- **V0.9.x**: Runtime optimization (Logger buffer, Frame lifecycle analysis, FPS sync)
+- **V0.9.2**: Frame lifetime analysis (allocation, copy, texture upload measurement)
+- **V0.9.x**: Runtime optimization based on metrics data
 - **V1.0**: Stable platform release
