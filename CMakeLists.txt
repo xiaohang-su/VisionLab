@@ -14,6 +14,7 @@ set(CORE_SOURCES
 src/core/types/id.h
 src/core/types/timestamp.h
 src/core/types/runtime_state.h
+src/core/types/detection.h
 src/core/types/frame.h
 src/core/types/detection.h
 src/core/types/track.h
