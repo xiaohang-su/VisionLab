@@ -43,12 +43,11 @@ all `Mock*` implementations, UI backend implementations, CMake options, document
 namespace visionlab::core::types {
 
 enum class PixelFormat {
-    Unknown = 0,
-    Gray8,
-    RGB8,
+    Unknown,
+    BGRA8,
     BGR8,
     RGBA8,
-    BGRA8,
+    RGB8,
 };
 
 struct Frame {
@@ -297,7 +296,13 @@ struct UIContext {
     const tracking::TrackResult* tracks = nullptr;
     const analysis::AnalysisResult* analysis = nullptr;
     const runtime::RuntimeMetrics* metrics = nullptr;
-    mutable double texture_upload_ms = 0.0;  // UI feedback field
+
+    // Convenience duplicates (written by Application each frame)
+    float fps = 0.0f;
+    std::uint64_t frame_count = 0;
+
+    // UI feedback (V0.9.3): written by renderer during render()
+    mutable double texture_upload_ms = 0.0;
 };
 ```
 
