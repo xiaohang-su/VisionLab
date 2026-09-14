@@ -5,8 +5,10 @@ namespace visionlab {
 Application::Application()
     :
     logger_("logs/visionlab.log"),
+    runtime_(),
     initialized_(false)
 {
+    module_manager_.add(&runtime_);
 }
 
 bool Application::initialize()
@@ -17,8 +19,6 @@ bool Application::initialize()
     }
 
     logger_.info("VisionLab starting...");
-
-    module_manager_.add(&runtime_);
 
     if (!module_manager_.initialize_all())
     {
