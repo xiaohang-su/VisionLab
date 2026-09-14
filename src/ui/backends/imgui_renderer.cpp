@@ -565,6 +565,20 @@ void ImGuiRenderer::build_ui(
     ImGui::Text("Frame: %llu",
         static_cast<unsigned long long>(context.frame_count));
 
+
+    // Runtime Metrics
+    if (context.metrics != nullptr)
+    {
+        ImGui::Separator();
+        ImGui::Text("Runtime");
+        ImGui::Text("Capture:   %.2f ms", context.metrics->capture_ms);
+        ImGui::Text("Vision:    %.2f ms", context.metrics->vision_ms);
+        ImGui::Text("Detection: %.2f ms", context.metrics->detection_ms);
+        ImGui::Text("Tracking:  %.2f ms", context.metrics->tracking_ms);
+        ImGui::Text("Analysis:  %.2f ms", context.metrics->analysis_ms);
+        ImGui::Text("Render:    %.2f ms", context.metrics->render_ms);
+    }
+
     ImGui::EndChild();
 
 

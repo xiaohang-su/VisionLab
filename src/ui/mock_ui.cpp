@@ -53,13 +53,30 @@ bool MockUI::render(
 
 
     std::printf(
-        "[MockUI] frame=%llu fps=%.1f detections=%d tracks=%d active_tracks=%d\n",
+        "[MockUI] frame=%llu fps=%.1f detections=%d tracks=%d active_tracks=%d",
         static_cast<unsigned long long>(context.frame_count),
         context.fps,
         detection_count,
         track_count,
         active_track_count
     );
+
+
+    if (context.metrics != nullptr)
+    {
+        std::printf(
+            " | cap=%.2fms vis=%.2fms det=%.2fms trk=%.2fms ana=%.2fms rnd=%.2fms",
+            context.metrics->capture_ms,
+            context.metrics->vision_ms,
+            context.metrics->detection_ms,
+            context.metrics->tracking_ms,
+            context.metrics->analysis_ms,
+            context.metrics->render_ms
+        );
+    }
+
+
+    std::printf("\n");
 
 
     return true;

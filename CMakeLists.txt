@@ -40,6 +40,8 @@ set(CORE_SOURCES
     src/core/module_manager.h
     src/core/module_manager.cpp
 
+    src/core/timer.h
+
 )
 
 
@@ -68,6 +70,8 @@ set(RUNTIME_SOURCES
 
     src/runtime/runtime_context.h
     src/runtime/runtime_context.cpp
+
+    src/runtime/runtime_metrics.h
 
 )
 

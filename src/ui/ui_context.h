@@ -4,6 +4,7 @@
 #include "../detection/detection_result.h"
 #include "../tracking/track_result.h"
 #include "../analysis/analysis_result.h"
+#include "../runtime/runtime_metrics.h"
 
 #include <cstdint>
 
@@ -21,6 +22,8 @@ struct UIContext
     const tracking::TrackResult* tracks = nullptr;
 
     const analysis::AnalysisResult* analysis = nullptr;
+
+    const runtime::RuntimeMetrics* metrics = nullptr;
 
 
     float fps = 0.0f;

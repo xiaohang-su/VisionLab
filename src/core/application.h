@@ -4,6 +4,9 @@
 
 #include "runtime/runtime.h"
 #include "runtime/runtime_context.h"
+#include "runtime/runtime_metrics.h"
+
+#include "timer.h"
 
 #include "../capture/capture.h"
 
@@ -109,6 +112,8 @@ private:
     ui::UI ui_;
 
     ui::UIContext ui_context_;
+
+    runtime::RuntimeMetrics metrics_;
 
 };
 

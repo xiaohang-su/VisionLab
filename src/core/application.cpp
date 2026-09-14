@@ -99,6 +99,8 @@ void Application::run()
     while (running_)
     {
 
+        core::Timer capture_timer;
+
         if (!capture_.get_frame(original_frame_))
         {
             std::this_thread::sleep_for(
@@ -108,6 +110,10 @@ void Application::run()
             continue;
         }
 
+        metrics_.capture_ms = capture_timer.elapsed_ms();
+
+
+        core::Timer vision_timer;
 
         if (!vision_pipeline_.process(
                 original_frame_,
@@ -121,6 +127,10 @@ void Application::run()
             continue;
         }
 
+        metrics_.vision_ms = vision_timer.elapsed_ms();
+
+
+        core::Timer detection_timer;
 
         if (detector_ != nullptr)
         {
@@ -135,6 +145,10 @@ void Application::run()
             }
         }
 
+        metrics_.detection_ms = detection_timer.elapsed_ms();
+
+
+        core::Timer tracking_timer;
 
         if (tracker_ != nullptr)
         {
@@ -149,6 +163,10 @@ void Application::run()
             }
         }
 
+        metrics_.tracking_ms = tracking_timer.elapsed_ms();
+
+
+        core::Timer analysis_timer;
 
         if (analyzer_ != nullptr)
         {
@@ -164,6 +182,8 @@ void Application::run()
             }
         }
 
+        metrics_.analysis_ms = analysis_timer.elapsed_ms();
+
 
         // Update UI context with read-only references
         ui_context_.frame = &processed_frame_;
@@ -171,6 +191,9 @@ void Application::run()
         ui_context_.tracks = &track_result_;
         ui_context_.analysis = &analysis_result_;
         ui_context_.frame_count = frame_count;
+        ui_context_.metrics = &metrics_;
+
+        metrics_.frame_count = frame_count;
 
         {
             const auto now = std::chrono::steady_clock::now();
@@ -178,18 +201,24 @@ void Application::run()
                 std::chrono::duration_cast<std::chrono::milliseconds>(
                     now - start_time
                 );
-            ui_context_.fps =
+            metrics_.fps =
                 (elapsed.count() > 0)
-                    ? (static_cast<float>(frame_count) * 1000.0f
-                       / static_cast<float>(elapsed.count()))
-                    : 0.0f;
+                    ? (static_cast<double>(frame_count) * 1000.0
+                       / static_cast<double>(elapsed.count()))
+                    : 0.0;
+            ui_context_.fps = static_cast<float>(metrics_.fps);
         }
+
+
+        core::Timer render_timer;
 
         if (!ui_.render(ui_context_))
         {
             // Renderer requested close (e.g. window closed)
             request_stop();
         }
+
+        metrics_.render_ms = render_timer.elapsed_ms();
 
 
         frame_count++;
