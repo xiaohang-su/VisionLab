@@ -1,20 +1,21 @@
 #pragma once
 
 #include "../core/core_types.h"
+#include "../core/module.h"
 #include "../logging/logger.h"
 
 namespace visionlab::runtime {
 
 using RuntimeState = visionlab::core::types::RuntimeState;
 
-class Runtime {
+class Runtime : public visionlab::core::Module {
 public:
     Runtime();
     ~Runtime();
 
-    bool initialize();
-    bool start();
-    bool stop();
+    bool initialize() override;
+    bool start() override;
+    bool stop() override;
 
     RuntimeState state() const;
     bool is_running() const;
