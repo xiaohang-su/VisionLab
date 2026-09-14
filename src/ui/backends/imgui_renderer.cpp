@@ -6,7 +6,7 @@
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
 
-#include "timer.h"
+#include "core/timer.h"
 
 #include <algorithm>
 #include <cstdio>
@@ -46,6 +46,8 @@ bool ImGuiRenderer::initialize(
 
     if (!create_d3d_device())
     {
+        // V0.9.6: roll back window creation on D3D11 device failure
+        window_.destroy();
         return false;
     }
 

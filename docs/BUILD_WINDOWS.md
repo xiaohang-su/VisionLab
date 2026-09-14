@@ -9,9 +9,16 @@
 - **CMake**: 3.22 or later
 - **C++ Standard**: C++20
 
+## CMake Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `VISIONLAB_UI_IMGUI` | OFF | Enable ImGui + DirectX11 UI renderer |
+| `VISIONLAB_ENABLE_SCREEN_CAPTURE` | OFF | Enable Windows Graphics Capture (MSVC only) |
+
 ## Configure
 
-### Default build (MockUI, no ImGui)
+### Default build (MockUI, no ImGui, no ScreenCapture)
 
 ```cmd
 cmake -B build -S .
@@ -27,7 +34,15 @@ This enables:
 - `third_party/imgui/` compilation
 - `src/ui/backends/` (win32_window + imgui_renderer)
 - `VISIONLAB_HAS_IMGUI` preprocessor definition
-- Links: `d3d11.lib`, `dxgi.lib`, `windowsapp.lib`
+- Links: `d3d11.lib`, `dxgi.lib`, `d3dcompiler.lib`, `dwmapi.lib`, `windowsapp.lib`
+
+### Full build (ImGui + ScreenCapture)
+
+```cmd
+cmake -B build -S . -DVISIONLAB_UI_IMGUI=ON -DVISIONLAB_ENABLE_SCREEN_CAPTURE=ON
+```
+
+> **Note**: `VISIONLAB_ENABLE_SCREEN_CAPTURE` requires MSVC + Windows SDK with C++/WinRT support. It is automatically disabled on MinGW/Clang.
 
 ## Build
 
@@ -62,9 +77,7 @@ With ImGui backend: a 1280x720 window opens showing the VisionLab UI.
 - [ ] Window closes cleanly (no crash on exit)
 - [ ] No D3D11 debug layer errors
 
-## Known Issues (V0.9.5)
-
-These are documented but **not fixed** in V0.9.5. They are tracked for future releases.
+## Known Issues
 
 ### 1. High DPI not handled
 
@@ -87,23 +100,17 @@ These are documented but **not fixed** in V0.9.5. They are tracked for future re
 - **Minimum**: Visual Studio 2022 17.0 (partial); recommended 17.10+ (full).
 - **Alternative**: Replace with `std::snprintf` if older compiler support is needed.
 
-### 5. initialize() failure path not fully cleaned
+### 5. MSVC real build not verified
 
-- **Impact**: If `create_d3d_device()` fails after `window_.create()` succeeds, the window is not explicitly destroyed in `initialize()`.
-- **Mitigation**: `Win32Window::~Win32Window()` calls `destroy()`, so no resource leak when the renderer object is destroyed.
-- **Future fix**: Call `window_.destroy()` in the failure path before returning.
-
-### 6. MSVC build not verified (Linux development environment)
-
-- **Impact**: All V0.9.x releases were developed and syntax-checked on Linux (g++ 11.4, `-fsyntax-only`). Real MSVC compilation and runtime testing have not been performed.
-- **Action required**: Build and test on Windows using the steps above. Report any compilation errors.
+- **Impact**: V0.9.x releases were developed on Linux (g++ syntax check). MinGW-w64 build verified in V0.9.5; MSVC real compilation and runtime testing still pending.
+- **Action required**: Build and test on Windows with Visual Studio using the steps above.
 
 ## Architecture Constraints
 
 - Core, Runtime, Capture, Vision, Detection, Tracking, Analysis modules: **no Windows dependencies**
 - Windows-specific code is isolated to:
-  - `src/capture/screen_capture_source.cpp` (D3D11 + Windows Graphics Capture)
+  - `src/capture/screen_capture_source.cpp` (D3D11 + Windows Graphics Capture, MSVC only)
   - `src/ui/backends/win32_window.cpp` (Win32 window)
   - `src/ui/backends/imgui_renderer.cpp` (D3D11 + ImGui)
 - `screen_capture_source.h` uses `void* impl_` pImpl — no Windows types in public header
-- CMake `if(WIN32)` guards all Windows-specific compilation and linking
+- CMake `if(WIN32)` guards Windows linking; `if(MSVC AND VISIONLAB_ENABLE_SCREEN_CAPTURE)` guards ScreenCapture compilation

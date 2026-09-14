@@ -11,7 +11,8 @@
 #include "ui/mock_ui.h"
 #endif
 
-#ifdef _WIN32
+// V0.9.6: use explicit feature flag instead of broad _WIN32 check
+#ifdef VISIONLAB_ENABLE_SCREEN_CAPTURE
 #include "capture/screen_capture_source.h"
 #else
 #include "capture/mock_capture_source.h"
@@ -22,7 +23,7 @@ int main()
 {
     visionlab::Application app;
 
-#ifdef _WIN32
+#ifdef VISIONLAB_ENABLE_SCREEN_CAPTURE
     visionlab::capture::ScreenCaptureSource source;
 #else
     visionlab::capture::MockCaptureSource source;

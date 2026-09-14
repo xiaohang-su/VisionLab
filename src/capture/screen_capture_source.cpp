@@ -1,6 +1,8 @@
 #include "screen_capture_source.h"
 
-#ifdef _WIN32
+// V0.9.6: Windows Graphics Capture requires MSVC + Windows SDK (C++/WinRT).
+// MinGW/Clang on Windows do not ship these headers.
+#if defined(_WIN32) && defined(_MSC_VER) && defined(VISIONLAB_ENABLE_SCREEN_CAPTURE)
 
 #include <windows.h>
 #include <d3d11.h>
@@ -390,7 +392,7 @@ bool ScreenCaptureSource::read(
 
 } // namespace visionlab::capture
 
-#else // !_WIN32
+#else // !VISIONLAB_ENABLE_SCREEN_CAPTURE
 
 // Non-Windows stub: ScreenCaptureSource is not available on this platform.
 // The header remains cross-platform; the .cpp is excluded from build by CMake.
@@ -406,4 +408,4 @@ bool ScreenCaptureSource::read(core::types::Frame&) { return false; }
 
 } // namespace visionlab::capture
 
-#endif // _WIN32
+#endif // VISIONLAB_ENABLE_SCREEN_CAPTURE

@@ -5,6 +5,12 @@
 #include "imgui.h"
 #include "imgui_impl_win32.h"
 
+// V0.9.6: ImGui intentionally hides this declaration in a #if 0 block in
+// imgui_impl_win32.h to avoid dragging <windows.h> into the header.
+// Forward-declare it here so WndProc can call it.
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(
+    HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 
 namespace visionlab::ui {
 

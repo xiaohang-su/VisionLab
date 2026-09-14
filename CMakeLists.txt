@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
 option(VISIONLAB_UI_IMGUI "Enable ImGui DX11 UI backend" OFF)
+option(VISIONLAB_ENABLE_SCREEN_CAPTURE "Enable Windows Graphics Capture (MSVC only)" OFF)
 
 
 if(NOT WIN32)
@@ -120,13 +121,15 @@ set(CAPTURE_SOURCES
 
 )
 
-if(WIN32)
+# V0.9.6: Windows Graphics Capture requires MSVC + Windows SDK (C++/WinRT)
+if(MSVC AND VISIONLAB_ENABLE_SCREEN_CAPTURE)
     list(APPEND CAPTURE_SOURCES
 
         src/capture/screen_capture_source.h
         src/capture/screen_capture_source.cpp
 
     )
+    add_compile_definitions(VISIONLAB_ENABLE_SCREEN_CAPTURE)
 endif()
 
 
@@ -297,11 +300,21 @@ add_executable(VisionLab
 )
 
 
+# V0.9.6: add src/ as include root (was previously relying on manual -I src)
+target_include_directories(VisionLab PRIVATE
+    ${PROJECT_SOURCE_DIR}/src
+)
+
+
 if(WIN32)
     target_link_libraries(VisionLab PRIVATE
 
         d3d11.lib
         dxgi.lib
+        # V0.9.6: ImGui DX11 backend needs D3DCompile (shader compilation)
+        d3dcompiler.lib
+        # V0.9.6: ImGui Win32 backend uses DWM for blur/colorization
+        dwmapi.lib
         windowsapp.lib
 
     )
