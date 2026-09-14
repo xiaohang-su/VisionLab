@@ -4,11 +4,11 @@ A modular computer vision experimentation and runtime platform for Windows 10/11
 
 ## Version
 
-**V0.9.3 - Performance Attribution Analysis**
+**V0.9.4 - Performance Dashboard**
 
 ## Current Status
 
-VisionLab V0.9.3 is released.
+VisionLab V0.9.4 is released.
 
 The current foundation includes:
 
@@ -73,6 +73,16 @@ V0.9.3 adds **performance attribution measurement**:
 - No behavior change: Vision, Capture, UIRenderer interfaces all unchanged
 - No optimization code introduced
 - Purpose: attribute time cost to specific data transfer operations
+
+V0.9.4 adds **performance dashboard visualization**:
+
+- Stage Timeline with per-stage progress bars (Capture/Vision/Detection/Tracking/Analysis/Render)
+- Bottleneck Ranking (top 3 stages sorted by time, UI-local sorting)
+- Warning indicators (green <30%, yellow 30-60%, red >60%)
+- Memory Flow panel (frame size, copy total, upload total, upload time, bandwidth)
+- UI-only changes: no RuntimeMetrics, Application, or core module modifications
+- No Dashboard class, no PerformanceManager, no history storage
+- Purpose: convert raw metrics into engineer-readable diagnostic information
 
 V0.9 does **not** include Logger buffer optimization, FramePool, memory pool, benchmark system, AI Runtime, ONNX Runtime, CUDA, or TensorRT.
 
@@ -222,11 +232,11 @@ Windows-specific sources are excluded via `if(WIN32)` in CMake.
 | V0.9.1 | Logger performance analysis (timing instrumentation, no behavior change) |
 | V0.9.2 | Frame lifetime analysis (allocation, copy, texture upload measurement) |
 | V0.9.3 | Performance attribution (texture upload timing + vision copy bandwidth) |
+| V0.9.4 | Performance dashboard (stage timeline + bottleneck ranking + memory flow) |
 
 ---
 
 ## Roadmap
 
-- **V0.9.4**: Performance dashboard overlay enhancement
-- **V0.9.x**: Runtime optimization based on metrics data
+- **V0.9.5**: Windows/MSVC build verification
 - **V1.0**: Stable platform release
