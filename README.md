@@ -4,11 +4,11 @@ A modular computer vision experimentation and runtime platform for Windows 10/11
 
 ## Version
 
-**V0.9.2 - Frame Lifetime Analysis**
+**V0.9.3 - Performance Attribution Analysis**
 
 ## Current Status
 
-VisionLab V0.9.2 is released.
+VisionLab V0.9.3 is released.
 
 The current foundation includes:
 
@@ -64,6 +64,15 @@ V0.9.2 adds **frame lifetime measurement**:
 - No behavior change: Frame API, Capture, VisionPipeline all unchanged
 - No FramePool, no MemoryPool, no optimization introduced
 - Purpose: measure frame memory cost before optimizing pipeline
+
+V0.9.3 adds **performance attribution measurement**:
+
+- Texture upload timing (texture_upload_ms): measures D3D11 Map + memcpy + Unmap only
+- Vision copy bandwidth estimation (vision_copy_bandwidth_MBps)
+- UIContext mutable feedback field for renderer-to-application metrics
+- No behavior change: Vision, Capture, UIRenderer interfaces all unchanged
+- No optimization code introduced
+- Purpose: attribute time cost to specific data transfer operations
 
 V0.9 does **not** include Logger buffer optimization, FramePool, memory pool, benchmark system, AI Runtime, ONNX Runtime, CUDA, or TensorRT.
 
@@ -212,11 +221,12 @@ Windows-specific sources are excluded via `if(WIN32)` in CMake.
 | V0.9.0 | Runtime metrics with per-stage frame timing (Timer + RuntimeMetrics + UI display) |
 | V0.9.1 | Logger performance analysis (timing instrumentation, no behavior change) |
 | V0.9.2 | Frame lifetime analysis (allocation, copy, texture upload measurement) |
+| V0.9.3 | Performance attribution (texture upload timing + vision copy bandwidth) |
 
 ---
 
 ## Roadmap
 
-- **V0.9.3**: FramePool evaluation (based on V0.9.2 metrics data)
+- **V0.9.4**: Performance dashboard overlay enhancement
 - **V0.9.x**: Runtime optimization based on metrics data
 - **V1.0**: Stable platform release
