@@ -99,6 +99,11 @@ void Application::run()
     while (running_)
     {
 
+        // Frame lifetime: capture allocation tracking
+        const std::size_t capacity_before =
+            original_frame_.data.capacity();
+
+
         core::Timer capture_timer;
 
         if (!capture_.get_frame(original_frame_))
@@ -111,6 +116,13 @@ void Application::run()
         }
 
         metrics_.capture_ms = capture_timer.elapsed_ms();
+
+
+        // Frame lifetime: detect vector reallocation
+        if (original_frame_.data.capacity() > capacity_before)
+        {
+            metrics_.frame_allocation_count++;
+        }
 
 
         core::Timer vision_timer;
@@ -128,6 +140,13 @@ void Application::run()
         }
 
         metrics_.vision_ms = vision_timer.elapsed_ms();
+
+
+        // Frame lifetime: count data copy from input to output
+        metrics_.frame_copy_bytes +=
+            static_cast<std::uint64_t>(processed_frame_.data.size());
+        metrics_.frame_data_bytes =
+            static_cast<std::uint64_t>(processed_frame_.data.size());
 
 
         core::Timer detection_timer;
@@ -209,6 +228,16 @@ void Application::run()
                        / static_cast<double>(elapsed.count()))
                     : 0.0;
             ui_context_.fps = static_cast<float>(metrics_.fps);
+        }
+
+
+        // Frame lifetime: count texture upload bytes (BGRA8 = 4 bytes/pixel)
+        if (processed_frame_.width > 0 && processed_frame_.height > 0)
+        {
+            metrics_.texture_upload_bytes +=
+                static_cast<std::uint64_t>(processed_frame_.width) *
+                static_cast<std::uint64_t>(processed_frame_.height) * 4;
+            metrics_.texture_upload_count++;
         }
 
 

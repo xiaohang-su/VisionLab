@@ -22,6 +22,13 @@ struct RuntimeMetrics
     std::uint64_t frame_count = 0;
     std::uint64_t log_count = 0;
 
+    // Frame lifetime (V0.9.2: measurement only)
+    std::uint64_t frame_data_bytes = 0;
+    std::uint64_t frame_allocation_count = 0;
+    std::uint64_t frame_copy_bytes = 0;
+    std::uint64_t texture_upload_bytes = 0;
+    std::uint64_t texture_upload_count = 0;
+
 };
 
 

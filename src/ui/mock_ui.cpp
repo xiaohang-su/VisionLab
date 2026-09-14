@@ -75,6 +75,15 @@ bool MockUI::render(
             context.metrics->logger_ms,
             static_cast<unsigned long long>(context.metrics->log_count)
         );
+
+        std::printf(
+            " | frame_data=%.2fMB alloc=%llu copy=%.2fMB upload=%.2fMB(%llu)",
+            context.metrics->frame_data_bytes / (1024.0 * 1024.0),
+            static_cast<unsigned long long>(context.metrics->frame_allocation_count),
+            context.metrics->frame_copy_bytes / (1024.0 * 1024.0),
+            context.metrics->texture_upload_bytes / (1024.0 * 1024.0),
+            static_cast<unsigned long long>(context.metrics->texture_upload_count)
+        );
     }
 
 

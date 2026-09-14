@@ -580,6 +580,18 @@ void ImGuiRenderer::build_ui(
         ImGui::Text("Logger:    %.2f ms (%llu calls)",
             context.metrics->logger_ms,
             static_cast<unsigned long long>(context.metrics->log_count));
+
+        ImGui::Separator();
+        ImGui::Text("Frame Lifetime");
+        ImGui::Text("Data:      %.2f MB",
+            context.metrics->frame_data_bytes / (1024.0 * 1024.0));
+        ImGui::Text("Allocation: %llu",
+            static_cast<unsigned long long>(context.metrics->frame_allocation_count));
+        ImGui::Text("Copy:      %.2f MB",
+            context.metrics->frame_copy_bytes / (1024.0 * 1024.0));
+        ImGui::Text("Upload:    %.2f MB (%llu)",
+            context.metrics->texture_upload_bytes / (1024.0 * 1024.0),
+            static_cast<unsigned long long>(context.metrics->texture_upload_count));
     }
 
     ImGui::EndChild();
