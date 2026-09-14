@@ -70,7 +70,7 @@ bool Capture::get_frame(
     frame_count_++;
 
 
-    frame.id.value = frame_count_;
+    frame.id = core::types::Id(frame_count_);
 
 
     frame.width = 1920;

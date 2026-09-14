@@ -105,6 +105,9 @@ set(CAPTURE_SOURCES
     src/capture/capture.h
     src/capture/capture.cpp
 
+    src/capture/frame_provider.h
+    src/capture/capture_source.h
+
 )
 
 
