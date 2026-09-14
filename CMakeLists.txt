@@ -7,6 +7,9 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
+option(VISIONLAB_UI_IMGUI "Enable ImGui DX11 UI backend" OFF)
+
+
 if(NOT WIN32)
     message(FATAL_ERROR "VisionLab requires Windows 10/11")
 endif()
@@ -207,6 +210,53 @@ set(UI_SOURCES
 
 
 # =========================
+# ImGui UI Backend (optional)
+# =========================
+
+set(IMGUI_SOURCES)
+
+set(UI_BACKEND_SOURCES)
+
+if(VISIONLAB_UI_IMGUI)
+
+    message(STATUS "VisionLab: ImGui DX11 UI backend enabled")
+
+    add_compile_definitions(VISIONLAB_HAS_IMGUI)
+
+    set(IMGUI_SOURCES
+
+        third_party/imgui/imgui.h
+        third_party/imgui/imgui.cpp
+        third_party/imgui/imgui_draw.cpp
+        third_party/imgui/imgui_widgets.cpp
+        third_party/imgui/imgui_tables.cpp
+        third_party/imgui/imgui_internal.h
+        third_party/imgui/imconfig.h
+        third_party/imgui/imstb_rectpack.h
+        third_party/imgui/imstb_textedit.h
+        third_party/imgui/imstb_truetype.h
+
+        third_party/imgui/backends/imgui_impl_dx11.h
+        third_party/imgui/backends/imgui_impl_dx11.cpp
+        third_party/imgui/backends/imgui_impl_win32.h
+        third_party/imgui/backends/imgui_impl_win32.cpp
+
+    )
+
+    set(UI_BACKEND_SOURCES
+
+        src/ui/backends/win32_window.h
+        src/ui/backends/win32_window.cpp
+        src/ui/backends/imgui_renderer.h
+        src/ui/backends/imgui_renderer.cpp
+
+    )
+
+endif()
+
+
+
+# =========================
 # Executable
 # =========================
 
@@ -236,6 +286,10 @@ add_executable(VisionLab
 
     ${UI_SOURCES}
 
+    ${IMGUI_SOURCES}
+
+    ${UI_BACKEND_SOURCES}
+
 )
 
 
@@ -246,6 +300,14 @@ if(WIN32)
         dxgi.lib
         windowsapp.lib
 
+    )
+endif()
+
+
+if(VISIONLAB_UI_IMGUI)
+    target_include_directories(VisionLab PRIVATE
+        third_party/imgui
+        third_party/imgui/backends
     )
 endif()
 

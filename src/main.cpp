@@ -4,7 +4,12 @@
 #include "detection/mock_detector.h"
 #include "tracking/mock_tracker.h"
 #include "analysis/mock_analyzer.h"
+
+#ifdef VISIONLAB_HAS_IMGUI
+#include "ui/backends/imgui_renderer.h"
+#else
 #include "ui/mock_ui.h"
+#endif
 
 #ifdef _WIN32
 #include "capture/screen_capture_source.h"
@@ -46,9 +51,20 @@ int main()
     app.set_analyzer(&analyzer);
 
 
+#ifdef VISIONLAB_HAS_IMGUI
+    visionlab::ui::ImGuiRenderer renderer;
+
+    if (!renderer.initialize(1280, 720))
+    {
+        return -1;
+    }
+
+    app.set_renderer(&renderer);
+#else
     visionlab::ui::MockUI mock_ui;
 
     app.set_renderer(&mock_ui);
+#endif
 
 
     if (!app.initialize())
@@ -59,6 +75,10 @@ int main()
     app.run();
 
     app.shutdown();
+
+#ifdef VISIONLAB_HAS_IMGUI
+    renderer.shutdown();
+#endif
 
     return 0;
 }

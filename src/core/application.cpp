@@ -185,7 +185,11 @@ void Application::run()
                     : 0.0f;
         }
 
-        ui_.render(ui_context_);
+        if (!ui_.render(ui_context_))
+        {
+            // Renderer requested close (e.g. window closed)
+            request_stop();
+        }
 
 
         frame_count++;
