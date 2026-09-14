@@ -11,7 +11,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
-#include <format>
+#include <cstdio>
 
 
 namespace visionlab::ui {
@@ -808,13 +808,11 @@ void ImGuiRenderer::build_ai_page(const UIContext& context)
 
                 draw_list->AddRect(p1, p2, IM_COL32(0, 200, 0, 255), 2.0f);
 
-                std::string label = std::format(
-                    "cls {} conf {:.2f}",
-                    det.class_id,
-                    det.confidence
-                );
+                char label[64];
+                snprintf(label, sizeof(label), "cls %d conf %.2f",
+                    det.class_id, det.confidence);
 
-                draw_list->AddText(p1, IM_COL32(0, 0, 0, 255), label.c_str());
+                draw_list->AddText(p1, IM_COL32(0, 0, 0, 255), label);
             }
         }
 
@@ -838,12 +836,13 @@ void ImGuiRenderer::build_ai_page(const UIContext& context)
 
                 draw_list->AddRect(p1, p2, IM_COL32(255, 140, 0, 255), 2.0f);
 
-                std::string label = std::format("ID {}", track.id);
+                char label[32];
+                snprintf(label, sizeof(label), "ID %d", track.id);
 
                 draw_list->AddText(
                     ImVec2(p1.x, p1.y - 18),
                     IM_COL32(255, 140, 0, 255),
-                    label.c_str()
+                    label
                 );
             }
         }

@@ -8,6 +8,7 @@
 #include <d3d11.h>
 #include <string>
 
+struct ImGuiContext;
 
 namespace visionlab::ui {
 
@@ -50,7 +51,7 @@ private:
     bool initialized_ = false;
 
     // Independent ImGui context for this window
-    struct ImGuiContext* imgui_context_ = nullptr;
+    ImGuiContext* imgui_context_ = nullptr;
 
     // Navigation state
     enum class NavPage { AI, Monitor, Models, Settings, About };

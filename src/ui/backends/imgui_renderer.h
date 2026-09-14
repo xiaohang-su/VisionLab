@@ -8,6 +8,7 @@
 
 #include <d3d11.h>
 
+struct ImGuiContext;
 
 namespace visionlab::ui {
 
@@ -98,7 +99,7 @@ private:
     bool initialized_ = false;
 
     // Independent ImGui context for main window
-    struct ImGuiContext* imgui_context_ = nullptr;
+    ImGuiContext* imgui_context_ = nullptr;
 
     // Floating window (shown after login)
     FloatingWindow* floating_ = nullptr;
