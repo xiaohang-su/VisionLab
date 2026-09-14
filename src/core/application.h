@@ -27,6 +27,11 @@ public:
     void shutdown();
 
 
+    void set_capture_source(
+        capture::CaptureSource* source
+    );
+
+
 private:
 
     config::Config config_;

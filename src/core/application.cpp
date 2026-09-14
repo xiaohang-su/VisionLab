@@ -105,4 +105,14 @@ void Application::shutdown()
 }
 
 
+
+void Application::set_capture_source(
+    capture::CaptureSource* source
+)
+{
+    capture_.set_source(source);
+}
+
+
+
 }
