@@ -4,11 +4,11 @@ A modular computer vision experimentation and runtime platform for Windows 10/11
 
 ## Version
 
-**V0.8.1 - ImGui DX11 UI Rendering**
+**V0.9.0 - Runtime Metrics & Frame Timing**
 
 ## Current Status
 
-VisionLab V0.8.1 is released.
+VisionLab V0.9.0 is released.
 
 The current foundation includes:
 
@@ -35,11 +35,18 @@ The current foundation includes:
 - Frame viewer with detection/tracking overlays
 - Analysis dashboard panel
 - White minimal rounded UI style
+- RuntimeMetrics with per-stage frame timing (capture/vision/detection/tracking/analysis/render)
+- Timer utility (steady_clock, microsecond precision)
+- FPS measurement and UI performance display
 
-V0.8.1 introduces an **optional** UI rendering backend:
+V0.9 introduces **runtime performance measurement**:
 
-- `VISIONLAB_UI_IMGUI=OFF` (default): pure C++20 MockUI build, no third-party dependencies
-- `VISIONLAB_UI_IMGUI=ON`: Dear ImGui + DirectX11 real window rendering
+- Per-stage timing for each pipeline phase
+- FPS calculation based on elapsed time
+- RuntimeMetrics exposed via UIContext for display
+- Both MockUI and ImGuiRenderer show performance metrics
+
+V0.9 does **not** include Logger buffer optimization, FramePool, memory pool, benchmark system, AI Runtime, ONNX Runtime, CUDA, or TensorRT.
 
 The core modules (Core, Runtime, Capture, Vision, Detection, Tracking, Analysis) remain zero third-party dependencies.
 
@@ -183,10 +190,11 @@ Windows-specific sources are excluded via `if(WIN32)` in CMake.
 | V0.7.0 | Analysis module architecture (Analyzer + AnalysisResult + MockAnalyzer) |
 | V0.8.0 | UI architecture layer (UIRenderer + UIContext + MockUI) |
 | V0.8.1 | ImGui DX11 UI renderer (Frame viewer + overlays + analysis panel) |
+| V0.9.0 | Runtime metrics with per-stage frame timing (Timer + RuntimeMetrics + UI display) |
 
 ---
 
 ## Roadmap
 
-- **V0.9**: Runtime / Performance optimization
+- **V0.9.x**: Runtime optimization (Logger buffer, Frame lifecycle analysis, FPS sync)
 - **V1.0**: Stable platform release
