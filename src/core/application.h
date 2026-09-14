@@ -1,11 +1,16 @@
 #pragma once
 
 #include "module_manager.h"
+
 #include "runtime/runtime.h"
+#include "runtime/runtime_context.h"
+
 #include "logging/logger.h"
 #include "config/config.h"
 
+
 namespace visionlab {
+
 
 class Application
 {
@@ -19,14 +24,23 @@ public:
 
     void shutdown();
 
+
 private:
 
     config::Config config_;
+
     logging::Logger logger_;
+
+    runtime::RuntimeContext runtime_context_;
+
     runtime::Runtime runtime_;
+
     core::ModuleManager module_manager_;
 
+
     bool initialized_;
+
 };
+
 
 }
