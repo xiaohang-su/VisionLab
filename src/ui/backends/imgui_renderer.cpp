@@ -440,6 +440,35 @@ void ImGuiRenderer::setup_style()
 
 
 
+// V0.9.4: Performance Dashboard helpers (UI-local, no core changes)
+namespace {
+
+constexpr double NOTICE_RATIO = 0.30;
+constexpr double WARNING_RATIO = 0.60;
+
+ImVec4 stage_color(double ratio)
+{
+    if (ratio > WARNING_RATIO)
+    {
+        return ImVec4(0.90f, 0.30f, 0.30f, 1.0f); // red
+    }
+    if (ratio > NOTICE_RATIO)
+    {
+        return ImVec4(0.95f, 0.75f, 0.20f, 1.0f); // yellow
+    }
+    return ImVec4(0.30f, 0.75f, 0.40f, 1.0f); // green
+}
+
+struct StageCost
+{
+    const char* name;
+    double ms;
+};
+
+}
+
+
+
 void ImGuiRenderer::build_ui(
     const UIContext& context
 )
@@ -547,12 +576,13 @@ void ImGuiRenderer::build_ui(
     ImGui::EndChild();
 
 
-    // Analysis Panel
+    // Performance Dashboard (V0.9.4)
     ImGui::BeginChild("AnalysisPanel", ImVec2(0, 0), true);
 
-    ImGui::Text("Analysis");
+    ImGui::Text("Performance Dashboard");
     ImGui::Separator();
 
+    // --- Analysis Data ---
     if (context.analysis != nullptr)
     {
         ImGui::Text("Detection: %d", context.analysis->detection_count);
@@ -568,45 +598,95 @@ void ImGuiRenderer::build_ui(
         ImGui::Text("No analysis data");
     }
 
-    ImGui::Separator();
-    ImGui::Text("FPS: %.1f", context.fps);
-    ImGui::Text("Frame: %llu",
-        static_cast<unsigned long long>(context.frame_count));
 
-
-    // Runtime Metrics
+    // --- Runtime Metrics ---
     if (context.metrics != nullptr)
     {
-        ImGui::Separator();
-        ImGui::Text("Runtime");
-        ImGui::Text("Capture:   %.2f ms", context.metrics->capture_ms);
-        ImGui::Text("Vision:    %.2f ms", context.metrics->vision_ms);
-        ImGui::Text("Detection: %.2f ms", context.metrics->detection_ms);
-        ImGui::Text("Tracking:  %.2f ms", context.metrics->tracking_ms);
-        ImGui::Text("Analysis:  %.2f ms", context.metrics->analysis_ms);
-        ImGui::Text("Render:    %.2f ms", context.metrics->render_ms);
-        ImGui::Text("Logger:    %.2f ms (%llu calls)",
-            context.metrics->logger_ms,
-            static_cast<unsigned long long>(context.metrics->log_count));
+        const auto& m = *context.metrics;
+
+        const double frame_time =
+            m.capture_ms + m.vision_ms + m.detection_ms +
+            m.tracking_ms + m.analysis_ms + m.render_ms;
 
         ImGui::Separator();
-        ImGui::Text("Frame Lifetime");
-        ImGui::Text("Data:      %.2f MB",
-            context.metrics->frame_data_bytes / (1024.0 * 1024.0));
-        ImGui::Text("Allocation: %llu",
-            static_cast<unsigned long long>(context.metrics->frame_allocation_count));
-        ImGui::Text("Copy:      %.2f MB",
-            context.metrics->frame_copy_bytes / (1024.0 * 1024.0));
-        ImGui::Text("Upload:    %.2f MB (%llu)",
-            context.metrics->texture_upload_bytes / (1024.0 * 1024.0),
-            static_cast<unsigned long long>(context.metrics->texture_upload_count));
+        ImGui::Text("Frame Time: %.2f ms", frame_time);
+        ImGui::Text("FPS: %.1f", context.fps);
+        ImGui::Text("Frame: %llu",
+            static_cast<unsigned long long>(context.frame_count));
 
+
+        // --- Stage Timeline ---
         ImGui::Separator();
-        ImGui::Text("Performance Attribution");
-        ImGui::Text("Vision Copy BW: %.1f MB/s",
-            context.metrics->vision_copy_bandwidth_MBps);
-        ImGui::Text("Texture Upload: %.3f ms",
-            context.metrics->texture_upload_ms);
+        ImGui::Text("Stage Timeline");
+
+        StageCost stages[6] = {
+            {"Capture",   m.capture_ms},
+            {"Vision",    m.vision_ms},
+            {"Detection", m.detection_ms},
+            {"Tracking",  m.tracking_ms},
+            {"Analysis",  m.analysis_ms},
+            {"Render",    m.render_ms},
+        };
+
+        for (const auto& stage : stages)
+        {
+            const double ratio =
+                (frame_time > 0.0) ? (stage.ms / frame_time) : 0.0;
+
+            const ImVec4 color = stage_color(ratio);
+
+            char label[64];
+            std::snprintf(label, sizeof(label),
+                "%-10s %6.2f ms", stage.name, stage.ms);
+
+            ImGui::PushStyleColor(ImGuiCol_PlotHistogram, color);
+            ImGui::ProgressBar(static_cast<float>(ratio),
+                ImVec2(-1, 0), label);
+            ImGui::PopStyleColor();
+        }
+
+
+        // --- Bottleneck Ranking ---
+        ImGui::Separator();
+        ImGui::Text("Bottleneck Ranking");
+
+        StageCost sorted[6];
+        for (int i = 0; i < 6; i++) sorted[i] = stages[i];
+
+        std::sort(sorted, sorted + 6,
+            [](const StageCost& a, const StageCost& b) {
+                return a.ms > b.ms;
+            });
+
+        for (int i = 0; i < 3; i++)
+        {
+            const double ratio =
+                (frame_time > 0.0) ? (sorted[i].ms / frame_time) : 0.0;
+
+            const ImVec4 color = stage_color(ratio);
+
+            ImGui::TextColored(color, "%d. %-10s %5.1f%%",
+                i + 1, sorted[i].name, ratio * 100.0);
+        }
+
+
+        // --- Memory Flow ---
+        ImGui::Separator();
+        ImGui::Text("Memory Flow");
+        ImGui::Text("Frame Size:  %.2f MB",
+            m.frame_data_bytes / (1024.0 * 1024.0));
+        ImGui::Text("Copy Total:  %.2f MB",
+            m.frame_copy_bytes / (1024.0 * 1024.0));
+        ImGui::Text("Upload Total: %.2f MB (%llu)",
+            m.texture_upload_bytes / (1024.0 * 1024.0),
+            static_cast<unsigned long long>(m.texture_upload_count));
+        ImGui::Text("Upload Time: %.3f ms", m.texture_upload_ms);
+        ImGui::Text("Copy BW:     %.1f MB/s", m.vision_copy_bandwidth_MBps);
+        ImGui::Text("Allocation:  %llu",
+            static_cast<unsigned long long>(m.frame_allocation_count));
+        ImGui::Text("Logger:      %.2f ms (%llu calls)",
+            m.logger_ms,
+            static_cast<unsigned long long>(m.log_count));
     }
 
     ImGui::EndChild();

@@ -1,5 +1,6 @@
 #include "mock_ui.h"
 
+#include <algorithm>
 #include <cstdio>
 
 
@@ -90,6 +91,44 @@ bool MockUI::render(
             context.metrics->texture_upload_ms,
             context.metrics->vision_copy_bandwidth_MBps
         );
+
+
+        // V0.9.4: Bottleneck ranking (UI-local, no core changes)
+        struct StageCost {
+            const char* name;
+            double ms;
+        };
+
+        StageCost stages[6] = {
+            {"Capture",   context.metrics->capture_ms},
+            {"Vision",    context.metrics->vision_ms},
+            {"Detection", context.metrics->detection_ms},
+            {"Tracking",  context.metrics->tracking_ms},
+            {"Analysis",  context.metrics->analysis_ms},
+            {"Render",    context.metrics->render_ms},
+        };
+
+        const double frame_time =
+            context.metrics->capture_ms +
+            context.metrics->vision_ms +
+            context.metrics->detection_ms +
+            context.metrics->tracking_ms +
+            context.metrics->analysis_ms +
+            context.metrics->render_ms;
+
+        std::sort(stages, stages + 6,
+            [](const StageCost& a, const StageCost& b) {
+                return a.ms > b.ms;
+            });
+
+        std::printf("\n[Bottleneck] ");
+        for (int i = 0; i < 3; i++)
+        {
+            const double ratio =
+                (frame_time > 0.0) ? (stages[i].ms / frame_time * 100.0) : 0.0;
+            std::printf("%d.%s %.1f%%  ",
+                i + 1, stages[i].name, ratio);
+        }
     }
 
 
