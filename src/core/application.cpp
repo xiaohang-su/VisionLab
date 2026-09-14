@@ -9,14 +9,21 @@ Application::Application()
     logger_("logs/visionlab.log"),
     runtime_context_(&logger_, &config_),
     runtime_(&runtime_context_),
+    capture_(),
     initialized_(false)
 {
+
     module_manager_.add(&runtime_);
+
+    module_manager_.add(&capture_);
+
 }
+
 
 
 bool Application::initialize()
 {
+
     if (!logger_.initialize())
     {
         return false;
@@ -29,6 +36,7 @@ bool Application::initialize()
     if (!module_manager_.initialize_all())
     {
         logger_.error("Module initialization failed.");
+
         return false;
     }
 
@@ -37,12 +45,14 @@ bool Application::initialize()
 
 
     return true;
+
 }
 
 
 
 void Application::run()
 {
+
     if (!initialized_)
     {
         return;
@@ -52,14 +62,17 @@ void Application::run()
     if (!module_manager_.start_all())
     {
         logger_.error("Module start failed.");
+
         return;
     }
+
 }
 
 
 
 void Application::shutdown()
 {
+
     if (!initialized_)
     {
         return;
@@ -73,6 +86,7 @@ void Application::shutdown()
 
 
     initialized_ = false;
+
 }
 
 

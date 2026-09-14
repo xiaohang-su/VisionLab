@@ -5,6 +5,8 @@
 #include "runtime/runtime.h"
 #include "runtime/runtime_context.h"
 
+#include "../capture/capture.h"
+
 #include "logging/logger.h"
 #include "config/config.h"
 
@@ -34,6 +36,8 @@ private:
     runtime::RuntimeContext runtime_context_;
 
     runtime::Runtime runtime_;
+
+    capture::Capture capture_;
 
     core::ModuleManager module_manager_;
 
