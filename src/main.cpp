@@ -2,6 +2,7 @@
 
 #include "vision/pass_through_processor.h"
 #include "detection/mock_detector.h"
+#include "tracking/mock_tracker.h"
 
 #ifdef _WIN32
 #include "capture/screen_capture_source.h"
@@ -31,6 +32,11 @@ int main()
     visionlab::detection::MockDetector detector;
 
     app.set_detector(&detector);
+
+
+    visionlab::tracking::MockTracker tracker;
+
+    app.set_tracker(&tracker);
 
 
     if (!app.initialize())

@@ -136,6 +136,20 @@ void Application::run()
         }
 
 
+        if (tracker_ != nullptr)
+        {
+            if (!tracker_->update(
+                    detection_result_,
+                    track_result_
+                ))
+            {
+                logger_.warning(
+                    "Tracking update failed."
+                );
+            }
+        }
+
+
         frame_count++;
 
 
@@ -224,6 +238,15 @@ void Application::set_detector(
 )
 {
     detector_ = detector;
+}
+
+
+
+void Application::set_tracker(
+    tracking::Tracker* tracker
+)
+{
+    tracker_ = tracker;
 }
 
 

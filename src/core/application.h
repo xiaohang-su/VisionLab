@@ -11,6 +11,8 @@
 
 #include "../detection/detector.h"
 
+#include "../tracking/tracker.h"
+
 #include "logging/logger.h"
 #include "config/config.h"
 
@@ -47,6 +49,11 @@ public:
     );
 
 
+    void set_tracker(
+        tracking::Tracker* tracker
+    );
+
+
 private:
 
     config::Config config_;
@@ -75,6 +82,10 @@ private:
     detection::Detector* detector_ = nullptr;
 
     detection::DetectionResult detection_result_;
+
+    tracking::Tracker* tracker_ = nullptr;
+
+    tracking::TrackResult track_result_;
 
 };
 

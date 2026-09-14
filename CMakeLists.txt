@@ -158,6 +158,22 @@ set(DETECTION_SOURCES
 
 
 # =========================
+# Tracking
+# =========================
+
+set(TRACKING_SOURCES
+
+    src/tracking/track_types.h
+    src/tracking/track_result.h
+    src/tracking/tracker.h
+    src/tracking/mock_tracker.h
+    src/tracking/mock_tracker.cpp
+
+)
+
+
+
+# =========================
 # Executable
 # =========================
 
@@ -180,6 +196,8 @@ add_executable(VisionLab
     ${VISION_SOURCES}
 
     ${DETECTION_SOURCES}
+
+    ${TRACKING_SOURCES}
 
 )
 
