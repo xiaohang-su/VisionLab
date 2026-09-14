@@ -18,9 +18,11 @@ bool Application::initialize()
 
     logger_.info("VisionLab starting...");
 
-    if (!runtime_.initialize())
+    module_manager_.add(&runtime_);
+
+    if (!module_manager_.initialize_all())
     {
-        logger_.error("Runtime initialization failed.");
+        logger_.error("Module initialization failed.");
         return false;
     }
 
@@ -36,7 +38,11 @@ void Application::run()
         return;
     }
 
-    runtime_.start();
+    if (!module_manager_.start_all())
+    {
+        logger_.error("Module start failed.");
+        return;
+    }
 }
 
 void Application::shutdown()
@@ -46,7 +52,7 @@ void Application::shutdown()
         return;
     }
 
-    runtime_.stop();
+    module_manager_.stop_all();
 
     logger_.info("VisionLab shutdown");
 
@@ -54,4 +60,3 @@ void Application::shutdown()
 }
 
 }
-
