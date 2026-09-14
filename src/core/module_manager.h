@@ -3,6 +3,10 @@
 #include "module.h"
 #include <vector>
 
+namespace visionlab::logging {
+class Logger;
+}
+
 namespace visionlab::core {
 
 /**
@@ -14,7 +18,7 @@ namespace visionlab::core {
  */
 class ModuleManager {
 public:
-    ModuleManager() = default;
+    explicit ModuleManager(logging::Logger* logger = nullptr);
     ~ModuleManager() = default;
 
     /**
@@ -55,6 +59,7 @@ public:
 
 private:
     std::vector<Module*> modules_;
+    logging::Logger* logger_;
 };
 
 }

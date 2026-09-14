@@ -10,6 +10,7 @@ Application::Application()
     runtime_context_(&logger_, &config_),
     runtime_(&runtime_context_),
     capture_(),
+    module_manager_(&logger_),
     initialized_(false)
 {
 
@@ -31,6 +32,20 @@ bool Application::initialize()
 
 
     logger_.info("VisionLab starting...");
+
+
+    if (config_.load("config/default.ini"))
+    {
+        logger_.info(
+            "Configuration loaded: "
+            + std::to_string(config_.size())
+            + " entries."
+        );
+    }
+    else
+    {
+        logger_.info("No configuration file found, using defaults.");
+    }
 
 
     if (!module_manager_.initialize_all())
