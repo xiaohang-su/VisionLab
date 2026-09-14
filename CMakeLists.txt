@@ -11,18 +11,21 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 
 set(CORE_SOURCES
-src/core/types/id.h
-src/core/types/timestamp.h
-src/core/types/runtime_state.h
-src/core/types/detection.h
-src/core/types/frame.h
-src/core/types/track.h
-src/core/types/detection.h
-src/core/types/track.h
-src/core/core_types.h
-src/core/module.h
-src/core/module_manager.h
-src/core/module_manager.cpp
+
+    src/core/types/id.h
+    src/core/types/timestamp.h
+    src/core/types/runtime_state.h
+
+    src/core/types/frame.h
+    src/core/types/detection.h
+    src/core/types/track.h
+    src/core/types/analysis_result.h
+
+    src/core/core_types.h
+
+    src/core/module.h
+    src/core/module_manager.h
+    src/core/module_manager.cpp
 )
 
 set(APPLICATION_SOURCES
