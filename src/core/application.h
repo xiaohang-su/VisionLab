@@ -13,6 +13,8 @@
 
 #include "../tracking/tracker.h"
 
+#include "../analysis/analyzer.h"
+
 #include "logging/logger.h"
 #include "config/config.h"
 
@@ -54,6 +56,11 @@ public:
     );
 
 
+    void set_analyzer(
+        analysis::Analyzer* analyzer
+    );
+
+
 private:
 
     config::Config config_;
@@ -86,6 +93,10 @@ private:
     tracking::Tracker* tracker_ = nullptr;
 
     tracking::TrackResult track_result_;
+
+    analysis::Analyzer* analyzer_ = nullptr;
+
+    analysis::AnalysisResult analysis_result_;
 
 };
 

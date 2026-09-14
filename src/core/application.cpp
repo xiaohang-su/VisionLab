@@ -150,6 +150,21 @@ void Application::run()
         }
 
 
+        if (analyzer_ != nullptr)
+        {
+            if (!analyzer_->analyze(
+                    detection_result_,
+                    track_result_,
+                    analysis_result_
+                ))
+            {
+                logger_.warning(
+                    "Analysis failed."
+                );
+            }
+        }
+
+
         frame_count++;
 
 
@@ -247,6 +262,15 @@ void Application::set_tracker(
 )
 {
     tracker_ = tracker;
+}
+
+
+
+void Application::set_analyzer(
+    analysis::Analyzer* analyzer
+)
+{
+    analyzer_ = analyzer;
 }
 
 
