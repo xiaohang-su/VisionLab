@@ -17,6 +17,11 @@ set(CORE_SOURCES
     src/core/core_types.h
 )
 
+set(APPLICATION_SOURCES
+    src/core/application.h
+    src/core/application.cpp
+)
+
 set(RUNTIME_SOURCES
     src/runtime/runtime.h
     src/runtime/runtime.cpp
@@ -35,6 +40,7 @@ set(CONFIG_SOURCES
 add_executable(VisionLab
     src/main.cpp
     ${CORE_SOURCES}
+    ${APPLICATION_SOURCES}
     ${RUNTIME_SOURCES}
     ${LOGGING_SOURCES}
     ${CONFIG_SOURCES}
