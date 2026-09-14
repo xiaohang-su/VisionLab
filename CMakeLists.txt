@@ -15,10 +15,9 @@ set(CORE_SOURCES
     src/core/types/timestamp.h
     src/core/types/runtime_state.h
     src/core/core_types.h
-)
-
-set(MODULE_SOURCES
     src/core/module.h
+    src/core/module_manager.h
+    src/core/module_manager.cpp
 )
 
 set(APPLICATION_SOURCES
@@ -45,7 +44,6 @@ add_executable(VisionLab
     src/main.cpp
     ${CORE_SOURCES}
     ${APPLICATION_SOURCES}
-    ${MODULE_SOURCES}
     ${RUNTIME_SOURCES}
     ${LOGGING_SOURCES}
     ${CONFIG_SOURCES}
