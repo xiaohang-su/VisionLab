@@ -30,6 +30,9 @@ struct UIContext
 
     std::uint64_t frame_count = 0;
 
+    // UI feedback (V0.9.3): written by renderer during render()
+    mutable double texture_upload_ms = 0.0;
+
 };
 
 

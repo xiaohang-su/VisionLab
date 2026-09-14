@@ -29,6 +29,10 @@ struct RuntimeMetrics
     std::uint64_t texture_upload_bytes = 0;
     std::uint64_t texture_upload_count = 0;
 
+    // Performance attribution (V0.9.3: measurement only)
+    double texture_upload_ms = 0.0;
+    double vision_copy_bandwidth_MBps = 0.0;
+
 };
 
 

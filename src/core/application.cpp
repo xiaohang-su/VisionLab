@@ -252,6 +252,26 @@ void Application::run()
         metrics_.render_ms = render_timer.elapsed_ms();
 
 
+        // V0.9.3: read texture upload time from UI feedback
+        metrics_.texture_upload_ms = ui_context_.texture_upload_ms;
+
+
+        // V0.9.3: estimate vision copy bandwidth (MB/s)
+        if (metrics_.vision_ms > 0.0
+            && processed_frame_.data.size() > 0)
+        {
+            const double bytes_per_frame =
+                static_cast<double>(processed_frame_.data.size());
+            const double seconds = metrics_.vision_ms / 1000.0;
+            metrics_.vision_copy_bandwidth_MBps =
+                (bytes_per_frame / (1024.0 * 1024.0)) / seconds;
+        }
+        else
+        {
+            metrics_.vision_copy_bandwidth_MBps = 0.0;
+        }
+
+
         frame_count++;
 
 

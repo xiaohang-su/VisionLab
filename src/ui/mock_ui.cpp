@@ -84,6 +84,12 @@ bool MockUI::render(
             context.metrics->texture_upload_bytes / (1024.0 * 1024.0),
             static_cast<unsigned long long>(context.metrics->texture_upload_count)
         );
+
+        std::printf(
+            " | upload=%.3fms vis_bw=%.1fMB/s",
+            context.metrics->texture_upload_ms,
+            context.metrics->vision_copy_bandwidth_MBps
+        );
     }
 
 

@@ -6,6 +6,8 @@
 #include "imgui_impl_dx11.h"
 #include "imgui_impl_win32.h"
 
+#include "timer.h"
+
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
@@ -152,13 +154,19 @@ bool ImGuiRenderer::render(
     }
 
 
-    // Upload frame texture
+    // Upload frame texture (timed: Map + memcpy + Unmap only)
     if (context.frame != nullptr
         && context.frame->width > 0
         && context.frame->height > 0
         && !context.frame->data.empty())
     {
+        core::Timer upload_timer;
         upload_frame(*context.frame);
+        context.texture_upload_ms = upload_timer.elapsed_ms();
+    }
+    else
+    {
+        context.texture_upload_ms = 0.0;
     }
 
 
@@ -592,6 +600,13 @@ void ImGuiRenderer::build_ui(
         ImGui::Text("Upload:    %.2f MB (%llu)",
             context.metrics->texture_upload_bytes / (1024.0 * 1024.0),
             static_cast<unsigned long long>(context.metrics->texture_upload_count));
+
+        ImGui::Separator();
+        ImGui::Text("Performance Attribution");
+        ImGui::Text("Vision Copy BW: %.1f MB/s",
+            context.metrics->vision_copy_bandwidth_MBps);
+        ImGui::Text("Texture Upload: %.3f ms",
+            context.metrics->texture_upload_ms);
     }
 
     ImGui::EndChild();
