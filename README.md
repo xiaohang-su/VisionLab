@@ -4,11 +4,11 @@ A modular computer vision experimentation and runtime platform for Windows 10/11
 
 ## Version
 
-**V0.8.0 - UI Architecture Layer**
+**V0.8.1 - ImGui DX11 UI Rendering**
 
 ## Current Status
 
-VisionLab V0.8.0 is released.
+VisionLab V0.8.1 is released.
 
 The current foundation includes:
 
@@ -29,12 +29,19 @@ The current foundation includes:
 - Analysis module architecture (Analyzer interface + AnalysisResult)
 - MockAnalyzer for data flow validation
 - UI architecture layer (UIRenderer interface + UIContext data binding)
-- MockUI renderer for data flow validation
+- MockUI renderer for headless data flow validation
+- Optional Dear ImGui + DirectX11 UI renderer
+- Win32 window backend
+- Frame viewer with detection/tracking overlays
+- Analysis dashboard panel
+- White minimal rounded UI style
 
-V0.8 does **not** include real window rendering, Dear ImGui, DirectX/Direct2D backend, or user interaction.
+V0.8.1 introduces an **optional** UI rendering backend:
 
-The project currently uses only the C++20 standard library and Windows SDK.
-No third-party dependencies.
+- `VISIONLAB_UI_IMGUI=OFF` (default): pure C++20 MockUI build, no third-party dependencies
+- `VISIONLAB_UI_IMGUI=ON`: Dear ImGui + DirectX11 real window rendering
+
+The core modules (Core, Runtime, Capture, Vision, Detection, Tracking, Analysis) remain zero third-party dependencies.
 
 ---
 
@@ -175,10 +182,11 @@ Windows-specific sources are excluded via `if(WIN32)` in CMake.
 | V0.6.0 | Tracking module architecture (Tracker + TrackResult + MockTracker) |
 | V0.7.0 | Analysis module architecture (Analyzer + AnalysisResult + MockAnalyzer) |
 | V0.8.0 | UI architecture layer (UIRenderer + UIContext + MockUI) |
+| V0.8.1 | ImGui DX11 UI renderer (Frame viewer + overlays + analysis panel) |
 
 ---
 
 ## Roadmap
 
-- **V0.8.x**: Real UI rendering (Dear ImGui + DirectX11, white minimal rounded style)
-- **V1.0**: Full platform release
+- **V0.9**: Runtime / Performance optimization
+- **V1.0**: Stable platform release
