@@ -1,102 +1,131 @@
-# VisionLab v1.1.0 发布说明
+# VisionLab 更新日志
 
-## 版本信息
+## v1.1.2 (2026-09-15) — Stable Release
 
-- **版本**: v1.1.0
-- **日期**: 2026-09-14
-- **平台**: Windows 10/11 (64-bit)
-- **类型**: Demo / 测试版
+### 正式发布
+- 首个用户可直接下载运行的稳定版本
+- GitHub Release 附带预编译 EXE 包
+- 静态链接运行时，零依赖开箱即用
 
-## 新增功能
+### 平台功能
+- 平台首页 UI（卡密登录、左侧导航、顶部公告、时间天气）
+- 独立悬浮检测窗（无边框、可拖拽、纯白简洁风）
+- 运行时性能指标 + Performance Dashboard
+- Auth/Platform/Inference 服务抽象层（预留微验/ONNX/TRT/DML）
 
-### 平台主界面
-- 顶部公告栏（时间、天气、公告）
-- 左侧导航：AI检测 / 性能监控 / 模型管理 / 设置 / 关于
-- 卡密登录页面
-- 底部状态栏（官方群、版本、服务器状态）
+### 跨平台修复
+- MinGW 交叉编译支持（Linux -> Windows）
+- 修复 GCC 10 兼容性（std::format -> snprintf）
+- 修复 ImGuiContext 命名空间前向声明
 
-### 独立悬浮窗
-- 登录后自动弹出
-- 无边框、可拖拽、纯白简洁风
-- 左侧导航：🎯 AI / 📊 监控 / 🧠 模型 / ⚙️ 设置 / ℹ️ 说明
-- 右侧实时画面 + 检测框 + 跟踪ID
-- 独立 D3D11 渲染，不影响主窗口
+### 系统要求
+- Windows 10/11 64-bit
+- DirectX 11 支持
+- 无需安装 VC++ 运行库（已静态链接）
 
-### 运行时性能
-- 分阶段性能计时（Capture/Vision/Detection/Tracking/Analysis/Render）
-- FPS 统计
-- 内存流量分析（Frame copy / Texture upload）
-- 性能仪表盘（阶段耗时柱状图 + 瓶颈排序）
+### 下载
+- GitHub Release: https://github.com/xiaohang-su/VisionLab/releases/tag/v1.1.2
+- 文件名: VisionLab-1.1.2-Windows.zip (1.2 MB)
 
-### 架构层
+---
+
+## v1.1.0-demo (2026-09-14)
+
+### 平台架构
 - AuthService（卡密验证 / 心跳 / 远程公告，预留微验对接）
 - PlatformService（时间 / 天气 / 公告 / 弹窗 / 官方群）
 - InferenceBackend（推理后端抽象，预留 ONNX/TensorRT/DirectML）
 - InferenceDetector（Detector 接口 + 推理后端桥接）
 
-## 系统要求
+### UI 重构
+- 平台首页布局（顶部公告栏 + 左侧导航 + 登录页 + 底部状态栏）
+- 5 个导航页面（AI检测 / 性能监控 / 模型管理 / 设置 / 关于）
 
-| 项目 | 最低要求 |
-|------|----------|
-| 系统 | Windows 10 64-bit 或更高 |
-| 内存 | 2GB RAM |
-| 显卡 | 支持 DirectX 11 |
-| 运行库 | 无需安装（静态链接 MSVC runtime） |
+---
 
-## 使用方法
+## v1.0.0-rc1 (2026-09-14)
 
-1. 解压 `VisionLab-1.1.0-Windows.zip`
-2. 双击 `启动.bat` 或 `VisionLab.exe`
-3. 主窗口打开后，Mock 模式自动登录
-4. 悬浮窗自动弹出，显示实时画面和检测框
+### API Freeze
+- Core 数据结构冻结（Frame / Detection / Track / AnalysisResult）
+- Runtime 生命周期冻结（initialize / start / update / shutdown）
+- 模块依赖方向固定：Core ← Runtime ← Capture ← Vision ← Detection ← Tracking ← Analysis ← UI
+- 文档：docs/API_FREEZE.md, docs/ARCHITECTURE.md
 
-## 已知限制（Demo 版本）
+---
 
-- 当前为 Mock 数据（模拟画面、模拟检测、模拟跟踪）
-- 卡密验证为 Mock 实现，未对接真实服务器
-- 天气/时间/公告为 Mock 数据
-- 推理后端为 Mock，未接入真实 ONNX 模型
-- ScreenCapture 默认关闭（需要 MSVC + Windows SDK 编译）
-- 窗口大小调整未处理（已知问题，后续版本修复）
-- High DPI 未适配（4K 屏幕可能显示较小）
+## v0.9.6 (2026-09-14) — Stabilization
 
-## 编译方法（开发者）
+### Build System 修复
+- CMake target_include_directories(src) 修复
+- Windows 条件编译从 `_WIN32` 改为 `_WIN32 && _MSC_VER && VISIONLAB_ENABLE_SCREEN_CAPTURE`
+- D3D11 链接库补全（d3dcompiler / dwmapi）
+- ImGui Handler 前向声明修复
+- timer include 路径修复（core/timer.h）
+- ImGui initialize 失败路径回滚（window_.destroy()）
+- project VERSION 同步到 0.9.6
 
-### 方式一：一键脚本
-```
-双击 scripts\build_release.bat
-```
+### 文档
+- docs/BUILD_WINDOWS.md
+- docs/BUILD_LINUX.md
+- docs/TROUBLESHOOTING.md
 
-### 方式二：手动
-```bash
-cmake -B build -DCMAKE_BUILD_TYPE=Release -DVISIONLAB_UI_IMGUI=ON
-cmake --build build --config Release
-```
+---
 
-### 打包
-```
-双击 scripts\package_release.bat
-```
+## v0.9.0 ~ v0.9.4 — Performance Observation
 
-## 文件结构
+### v0.9.0 Runtime Timing
+- 分阶段性能计时（capture/vision/detection/tracking/analysis/render）
+- FPS 统计
+- RuntimeMetrics 数据结构
 
-```
-VisionLab-1.1.0-Windows/
-├── VisionLab.exe      # 主程序
-├── 启动.bat            # 一键启动
-├── README.md          # 说明文档
-└── docs/              # 开发文档
-    ├── API_FREEZE.md
-    ├── ARCHITECTURE.md
-    ├── BUILD_WINDOWS.md
-    ├── BUILD_LINUX.md
-    └── TROUBLESHOOTING.md
-```
+### v0.9.1 Logger Analysis
+- Logger 耗时统计
+- 日志调用次数统计
 
-## 反馈
+### v0.9.2 Frame Lifetime
+- Frame allocation 计数
+- Frame copy bytes 统计
+- Texture upload bytes 统计
 
-测试中发现问题请记录：
-- 复现步骤
-- 截图
-- 系统版本
-- 显卡型号
+### v0.9.3 Cost Attribution
+- Texture upload 耗时测量
+- Vision copy bandwidth 分析（MB/s）
+
+### v0.9.4 Performance Dashboard
+- Stage Timeline（阶段耗时柱状图）
+- Bottleneck Ranking（瓶颈排序）
+- Warning Indicator（颜色阈值提示）
+- Memory Flow Panel（内存流量面板）
+
+---
+
+## v0.8.0 ~ v0.8.1 — UI Rendering
+
+### v0.8.0 UI Architecture
+- UIRenderer 抽象接口
+- MockUI 零依赖后端
+- UIContext 数据交换桥
+
+### v0.8.1 ImGui DX11 Rendering
+- Dear ImGui + DirectX11 + Win32 后端
+- Frame Viewer（动态纹理上传）
+- Detection Overlay（检测框绘制）
+- Tracking Overlay（跟踪框 + ID）
+- Analysis Panel
+- 纯白简洁圆角 UI 风格
+
+---
+
+## v0.1 ~ v0.7 — Foundation
+
+| 版本 | 内容 |
+|------|------|
+| v0.1.0 | 工程骨架 |
+| v0.2.0 | Core Runtime Foundation |
+| v0.3.0 | Capture 架构 |
+| v0.3.1 | Windows ScreenCapture |
+| v0.4.0 | Vision Pipeline |
+| v0.4.1 | Runtime Frame Loop |
+| v0.5.0 | Detection 架构 |
+| v0.6.0 | Tracking 架构 |
+| v0.7.0 | Analysis 架构 |

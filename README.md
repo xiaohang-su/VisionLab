@@ -4,11 +4,20 @@ A modular C++20 computer vision platform for Windows 10/11.
 
 ## Version
 
-**V1.0 Stable Platform** (Release Candidate)
+**v1.1.2 Stable** — Released 2026-09-15
 
 VisionLab is a stable vision computation platform skeleton with a complete
 data pipeline: Capture → Vision → Detection → Tracking → Analysis → UI,
 plus a runtime performance measurement system.
+
+## Download
+
+**Windows EXE (zero dependencies):**
+👉 [VisionLab-1.1.2-Windows.zip](https://github.com/xiaohang-su/VisionLab/releases/download/v1.1.2/VisionLab-1.1.2-Windows.zip) (1.2 MB)
+
+- Static-linked runtime, no VC++ redistributable required
+- Windows 10/11 64-bit, DirectX 11
+- Unzip and double-click `启动.bat` or `VisionLab.exe`
 
 ---
 
