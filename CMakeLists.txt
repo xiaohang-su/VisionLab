@@ -15,6 +15,7 @@ src/core/types/id.h
 src/core/types/timestamp.h
 src/core/types/runtime_state.h
 src/core/types/frame.h
+src/core/types/detection.h
 src/core/core_types.h
 src/core/module.h
 src/core/module_manager.h
