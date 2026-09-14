@@ -1,5 +1,7 @@
 #include "runtime.h"
 
+#include "../logging/logger.h"
+
 #include <string>
 
 
@@ -37,12 +39,12 @@ bool Runtime::initialize()
 
     if (state_ != RuntimeState::Created)
     {
-        return false;
-    }
+        context_->logger()->warning(
+            "Runtime initialize failed: current state is "
+            + std::string(to_string(state_))
+            + ", expected Created."
+        );
 
-
-    if (!context_->logger()->initialize())
-    {
         return false;
     }
 
@@ -64,6 +66,12 @@ bool Runtime::start()
 {
     if (state_ != RuntimeState::Initialized)
     {
+        context_->logger()->warning(
+            "Runtime start failed: current state is "
+            + std::string(to_string(state_))
+            + ", expected Initialized."
+        );
+
         return false;
     }
 
@@ -85,6 +93,12 @@ bool Runtime::stop()
 {
     if (state_ != RuntimeState::Running)
     {
+        context_->logger()->warning(
+            "Runtime stop failed: current state is "
+            + std::string(to_string(state_))
+            + ", expected Running."
+        );
+
         return false;
     }
 
