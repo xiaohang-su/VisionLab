@@ -1,187 +1,107 @@
 # VisionLab
 
-A modular computer vision experimentation and runtime platform for Windows 10/11.
+A modular C++20 computer vision platform for Windows 10/11.
 
 ## Version
 
-**V0.9.4 - Performance Dashboard**
+**V1.0 Stable Platform** (Release Candidate)
 
-## Current Status
-
-VisionLab V0.9.4 is released.
-
-The current foundation includes:
-
-- Core type system (Id, Timestamp, Frame, Detection, Track, AnalysisResult)
-- Runtime lifecycle state machine
-- Module system with lifecycle coordination
-- Logger (file + console, thread-safe)
-- Config system (INI format, minimal loading)
-- Capture framework with pluggable CaptureSource architecture
-- MockCaptureSource for testing
-- Windows ScreenCaptureSource (Graphics Capture API)
-- Vision Pipeline architecture (VisionProcessor + VisionPipeline + ImageView)
-- Runtime frame loop connecting Capture → VisionPipeline
-- Detection module architecture (Detector interface + DetectionResult)
-- MockDetector for data flow validation
-- Tracking module architecture (Tracker interface + TrackResult)
-- MockTracker for data flow validation
-- Analysis module architecture (Analyzer interface + AnalysisResult)
-- MockAnalyzer for data flow validation
-- UI architecture layer (UIRenderer interface + UIContext data binding)
-- MockUI renderer for headless data flow validation
-- Optional Dear ImGui + DirectX11 UI renderer
-- Win32 window backend
-- Frame viewer with detection/tracking overlays
-- Analysis dashboard panel
-- White minimal rounded UI style
-- RuntimeMetrics with per-stage frame timing (capture/vision/detection/tracking/analysis/render)
-- Timer utility (steady_clock, microsecond precision)
-- FPS measurement and UI performance display
-- Logger timing instrumentation (total_log_ms, log_count) for performance analysis
-
-V0.9 introduces **runtime performance measurement**:
-
-- Per-stage timing for each pipeline phase
-- FPS calculation based on elapsed time
-- RuntimeMetrics exposed via UIContext for display
-- Both MockUI and ImGuiRenderer show performance metrics
-
-V0.9.1 adds **logger performance measurement**:
-
-- Logger internal timing (steady_clock, includes lock + format + console + file flush)
-- RuntimeMetrics.logger_ms and RuntimeMetrics.log_count (cumulative)
-- No behavior change: synchronous IO, per-call flush, original API preserved
-- No async buffering, no thread, no queue introduced
-- Purpose: measure whether Logger is a bottleneck before optimizing
-
-V0.9.2 adds **frame lifetime measurement**:
-
-- Frame data size tracking (frame_data_bytes)
-- Vector allocation monitoring (frame_allocation_count)
-- Data copy bytes tracking (frame_copy_bytes)
-- Texture upload bytes and count monitoring (texture_upload_bytes, texture_upload_count)
-- No behavior change: Frame API, Capture, VisionPipeline all unchanged
-- No FramePool, no MemoryPool, no optimization introduced
-- Purpose: measure frame memory cost before optimizing pipeline
-
-V0.9.3 adds **performance attribution measurement**:
-
-- Texture upload timing (texture_upload_ms): measures D3D11 Map + memcpy + Unmap only
-- Vision copy bandwidth estimation (vision_copy_bandwidth_MBps)
-- UIContext mutable feedback field for renderer-to-application metrics
-- No behavior change: Vision, Capture, UIRenderer interfaces all unchanged
-- No optimization code introduced
-- Purpose: attribute time cost to specific data transfer operations
-
-V0.9.4 adds **performance dashboard visualization**:
-
-- Stage Timeline with per-stage progress bars (Capture/Vision/Detection/Tracking/Analysis/Render)
-- Bottleneck Ranking (top 3 stages sorted by time, UI-local sorting)
-- Warning indicators (green <30%, yellow 30-60%, red >60%)
-- Memory Flow panel (frame size, copy total, upload total, upload time, bandwidth)
-- UI-only changes: no RuntimeMetrics, Application, or core module modifications
-- No Dashboard class, no PerformanceManager, no history storage
-- Purpose: convert raw metrics into engineer-readable diagnostic information
-
-V0.9 does **not** include Logger buffer optimization, FramePool, memory pool, benchmark system, AI Runtime, ONNX Runtime, CUDA, or TensorRT.
-
-The core modules (Core, Runtime, Capture, Vision, Detection, Tracking, Analysis) remain zero third-party dependencies.
+VisionLab is a stable vision computation platform skeleton with a complete
+data pipeline: Capture → Vision → Detection → Tracking → Analysis → UI,
+plus a runtime performance measurement system.
 
 ---
 
 ## Architecture
 
-### Module Dependency Direction
-
 ```
-Core (types, module interface)
-  ← Runtime (lifecycle)
-    ← Capture (input sources)
-      ← Vision / Tracking / Analysis (future)
-        ← UI (future)
-```
-
-### Key Principles
-
-- **Simple** → **Modular** → **Testable** → **Extensible**
-- No premature abstraction
-- No third-party dependencies until necessary
-- Platform-specific code isolated in implementation files
-
----
-
-## Core Module
-
-The Core module provides shared types and basic infrastructure.
-
-### Id
-
-- `uint64_t` based identifier
-- Comparison operators
-- Hash support
-- Validity checking
-
-### Timestamp
-
-- `std::chrono::system_clock`
-- Unix epoch semantics
-- Millisecond precision
-- Microsecond precision
-- Comparison support
-- Duration calculation
-
-### Frame
-
-- `Id` and `Timestamp`
-- Width / height
-- `PixelFormat` (BGRA8, BGR8, RGBA8, RGB8)
-- `std::vector<uint8_t>` pixel data
-
-### RuntimeState
-
-Current lifecycle states:
-
-```text
-Created
-Initialized
-Running
-Stopped
+VisionLab
+│
+├── Core              — Id, Timestamp, Frame, PixelFormat, Module, Timer
+├── Runtime           — Runtime lifecycle, RuntimeMetrics
+├── Logging           — Synchronous logger with timing instrumentation
+├── Config            — Minimal INI config loader
+│
+├── Capture           — Pluggable CaptureSource (Mock / Windows Screen Capture)
+├── Vision            — VisionPipeline with ordered VisionProcessor chain
+├── Detection         — Detector interface + DetectionResult
+├── Tracking          — Tracker interface + TrackResult
+├── Analysis          — Analyzer interface + AnalysisResult
+│
+└── UI                — UIRenderer interface
+    ├── MockUI        — Headless stats output (zero dependencies)
+    └── ImGuiRenderer — Dear ImGui + DirectX11 + Win32 (optional)
 ```
 
----
+### Dependency Direction
 
-## Capture Module
-
-The Capture module provides a pluggable source architecture.
-
-### CaptureSource Interface
-
-```cpp
-class CaptureSource {
-    virtual bool open() = 0;
-    virtual bool close() = 0;
-    virtual bool read(Frame& frame) = 0;
-};
 ```
-
-### Available Sources
-
-| Source | Platform | Description |
-|--------|----------|-------------|
-| MockCaptureSource | All | Generates test frames (640x480 BGRA8 gradient) |
-| ScreenCaptureSource | Windows 10 1903+ | Real screen capture via Graphics Capture API |
+Core
+  ▲
+  │
+Runtime
+  ▲
+  │
+Capture ← Vision ← Detection ← Tracking ← Analysis
+  ▲
+  │
+UI (reads all above via const pointers, never writes back)
+```
 
 ### Data Flow
 
 ```
 CaptureSource::read(Frame&)
-  ← fills width, height, format, data
-Capture::get_frame(Frame&)
-  ← sets frame.id, frame_count
-FrameProvider interface
-  ← consumed by Runtime / future Vision pipeline
+        ↓  Frame (original)
+VisionProcessor::process(const Frame&, Frame&)
+        ↓  Frame (processed)
+Detector::detect(const Frame&, DetectionResult&)
+        ↓  DetectionResult
+Tracker::update(const DetectionResult&, TrackResult&)
+        ↓  TrackResult
+Analyzer::analyze(const DetectionResult&, const TrackResult&, AnalysisResult&)
+        ↓  AnalysisResult
+UIRenderer::render(const UIContext&)
 ```
+
+All stages use const-reference input and reference output. No per-frame
+allocation. Single-threaded frame loop.
+
+---
+
+## Features
+
+### Pipeline Modules
+
+| Module | Interface | Mock Implementation |
+|--------|-----------|---------------------|
+| Capture | `CaptureSource::read(Frame&)` | MockCaptureSource (640×480 BGRA gradient) |
+| Vision | `VisionProcessor::process(const Frame&, Frame&)` | PassThroughProcessor |
+| Detection | `Detector::detect(const Frame&, DetectionResult&)` | MockDetector (fixed center bbox) |
+| Tracking | `Tracker::update(const DetectionResult&, TrackResult&)` | MockTracker (incremental track IDs) |
+| Analysis | `Analyzer::analyze(const DetectionResult&, const TrackResult&, AnalysisResult&)` | MockAnalyzer |
+
+### UI
+
+- **UIRenderer** abstract interface — backend-agnostic
+- **MockUI** — headless, prints stats to console, zero dependencies
+- **ImGuiRenderer** — Dear ImGui + DirectX11, white minimal rounded style
+  - Frame viewer with detection/tracking overlays
+  - Performance dashboard (stage timeline, bottleneck ranking, memory flow)
+  - FPS and per-stage timing display
+
+### Runtime Performance System
+
+V0.9 introduced a complete measurement framework:
+
+- **Per-stage timing**: capture/vision/detection/tracking/analysis/render ms
+- **Logger analysis**: log count, cumulative log time
+- **Frame lifetime**: allocation count, copy bytes, texture upload bytes
+- **Cost attribution**: texture upload ms, vision copy bandwidth
+- **Performance dashboard**: engineer-readable visualization in ImGui UI
+
+> **Principle**: measure first, optimize later. No FramePool, async logger,
+> or multi-threading has been added without measured evidence of need.
 
 ---
 
@@ -189,27 +109,78 @@ FrameProvider interface
 
 ### Requirements
 
-- Windows 10 1903+ (for ScreenCaptureSource)
-- CMake 3.20+
-- C++20 compiler (MSVC 2022 recommended)
-- Windows SDK
+- **OS**: Windows 10 (2004+) or Windows 11
+- **Compiler**: Visual Studio 2022 (17.10+ recommended for `std::format`)
+- **CMake**: 3.20+
+- **C++ Standard**: C++20
 
-### Build Steps
+### Default Build (zero dependencies)
 
 ```bash
-cmake -B build
+cmake -B build -S .
 cmake --build build --config Release
 ```
 
-### Linux Development
+Produces `build/bin/Release/VisionLab.exe` with MockUI + MockCapture.
+No third-party libraries required.
 
-The platform-independent framework (Core, Runtime, Logger, Config, Capture interface, MockCaptureSource) can be syntax-checked on Linux:
+### With ImGui + DX11 UI
 
 ```bash
-g++ -std=c++20 -fsyntax-only -I src <file>.cpp
+cmake -B build -S . -DVISIONLAB_UI_IMGUI=ON
+cmake --build build --config Release
 ```
 
-Windows-specific sources are excluded via `if(WIN32)` in CMake.
+### With Windows Screen Capture
+
+```bash
+cmake -B build -S . -DVISIONLAB_UI_IMGUI=ON -DVISIONLAB_ENABLE_SCREEN_CAPTURE=ON
+cmake --build build --config Release
+```
+
+> **Note**: `VISIONLAB_ENABLE_SCREEN_CAPTURE` requires MSVC + Windows SDK
+> with C++/WinRT support. It is automatically disabled on MinGW/Clang.
+
+### CMake Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `VISIONLAB_UI_IMGUI` | OFF | Enable Dear ImGui + DirectX11 renderer |
+| `VISIONLAB_ENABLE_SCREEN_CAPTURE` | OFF | Enable Windows Graphics Capture (MSVC only) |
+
+### Linux Development
+
+Linux is supported for syntax checking and architecture validation only.
+See [docs/BUILD_LINUX.md](docs/BUILD_LINUX.md).
+
+---
+
+## Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [docs/API_FREEZE.md](docs/API_FREEZE.md) | V1.0 API freeze specification — what cannot change |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Architecture design rationale and module boundaries |
+| [docs/BUILD_WINDOWS.md](docs/BUILD_WINDOWS.md) | Windows build guide and verification checklist |
+| [docs/BUILD_LINUX.md](docs/BUILD_LINUX.md) | Linux development workflow |
+| [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Common build and runtime issues |
+
+---
+
+## What V1.0 Does NOT Include
+
+These are deliberately deferred — see [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+for rationale:
+
+- ❌ ONNX Runtime / CUDA / TensorRT / AI inference
+- ❌ OpenCV
+- ❌ Multi-threaded pipeline
+- ❌ FramePool / memory recycling
+- ❌ Async logger / buffered IO
+- ❌ High DPI awareness
+- ❌ Window resize / swap chain resize
+- ❌ Plugin system
+- ❌ Real detection/tracking algorithms (only mock implementations)
 
 ---
 
@@ -228,15 +199,31 @@ Windows-specific sources are excluded via `if(WIN32)` in CMake.
 | V0.7.0 | Analysis module architecture (Analyzer + AnalysisResult + MockAnalyzer) |
 | V0.8.0 | UI architecture layer (UIRenderer + UIContext + MockUI) |
 | V0.8.1 | ImGui DX11 UI renderer (Frame viewer + overlays + analysis panel) |
-| V0.9.0 | Runtime metrics with per-stage frame timing (Timer + RuntimeMetrics + UI display) |
-| V0.9.1 | Logger performance analysis (timing instrumentation, no behavior change) |
-| V0.9.2 | Frame lifetime analysis (allocation, copy, texture upload measurement) |
-| V0.9.3 | Performance attribution (texture upload timing + vision copy bandwidth) |
-| V0.9.4 | Performance dashboard (stage timeline + bottleneck ranking + memory flow) |
+| V0.9.0 | Runtime metrics with per-stage frame timing |
+| V0.9.1 | Logger performance analysis (timing instrumentation) |
+| V0.9.2 | Frame lifetime analysis (allocation, copy, texture upload) |
+| V0.9.3 | Performance attribution (upload timing + copy bandwidth) |
+| V0.9.4 | Performance dashboard (stage timeline + bottleneck ranking) |
+| V0.9.5 | Windows build verification (MinGW validation, 6 build bugs found) |
+| V0.9.6 | Stabilization (CMake fixes, cross-platform, lifecycle, docs) |
+| V1.0 | **Stable Platform** — API freeze, architecture documentation |
 
 ---
 
 ## Roadmap
 
-- **V0.9.5**: Windows/MSVC build verification
-- **V1.0**: Stable platform release
+```
+v1.0  Stable Platform (current)
+  │
+  ├── v1.1  Runtime Refactor
+  ├── v1.2  Vision Pipeline Expansion (Grayscale, Resize)
+  ├── v1.3  ONNX Runtime Integration
+  ├── v1.4  GPU Backend (CUDA / TensorRT)
+  └── v2.0  AI Vision Platform
+```
+
+---
+
+## License
+
+See repository for license information.
