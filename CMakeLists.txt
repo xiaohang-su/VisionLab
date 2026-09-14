@@ -142,6 +142,22 @@ set(VISION_SOURCES
 
 
 # =========================
+# Detection
+# =========================
+
+set(DETECTION_SOURCES
+
+    src/detection/detection_types.h
+    src/detection/detection_result.h
+    src/detection/detector.h
+    src/detection/mock_detector.h
+    src/detection/mock_detector.cpp
+
+)
+
+
+
+# =========================
 # Executable
 # =========================
 
@@ -162,6 +178,8 @@ add_executable(VisionLab
     ${CAPTURE_SOURCES}
 
     ${VISION_SOURCES}
+
+    ${DETECTION_SOURCES}
 
 )
 

@@ -1,6 +1,7 @@
 #include "core/application.h"
 
 #include "vision/pass_through_processor.h"
+#include "detection/mock_detector.h"
 
 #ifdef _WIN32
 #include "capture/screen_capture_source.h"
@@ -25,6 +26,11 @@ int main()
     visionlab::vision::PassThroughProcessor passthrough;
 
     app.vision_pipeline().add_processor(&passthrough);
+
+
+    visionlab::detection::MockDetector detector;
+
+    app.set_detector(&detector);
 
 
     if (!app.initialize())

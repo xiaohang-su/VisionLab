@@ -122,6 +122,20 @@ void Application::run()
         }
 
 
+        if (detector_ != nullptr)
+        {
+            if (!detector_->detect(
+                    processed_frame_,
+                    detection_result_
+                ))
+            {
+                logger_.warning(
+                    "Detection failed."
+                );
+            }
+        }
+
+
         frame_count++;
 
 
@@ -201,6 +215,15 @@ void Application::set_capture_source(
 vision::VisionPipeline& Application::vision_pipeline()
 {
     return vision_pipeline_;
+}
+
+
+
+void Application::set_detector(
+    detection::Detector* detector
+)
+{
+    detector_ = detector;
 }
 
 

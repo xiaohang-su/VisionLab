@@ -9,6 +9,8 @@
 
 #include "../vision/vision_pipeline.h"
 
+#include "../detection/detector.h"
+
 #include "logging/logger.h"
 #include "config/config.h"
 
@@ -40,6 +42,11 @@ public:
     vision::VisionPipeline& vision_pipeline();
 
 
+    void set_detector(
+        detection::Detector* detector
+    );
+
+
 private:
 
     config::Config config_;
@@ -64,6 +71,10 @@ private:
     core::types::Frame original_frame_;
 
     core::types::Frame processed_frame_;
+
+    detection::Detector* detector_ = nullptr;
+
+    detection::DetectionResult detection_result_;
 
 };
 
