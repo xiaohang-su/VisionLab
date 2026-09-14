@@ -4,11 +4,11 @@ A modular computer vision experimentation and runtime platform for Windows 10/11
 
 ## Version
 
-**V0.7.0 - Analysis Module Architecture**
+**V0.8.0 - UI Architecture Layer**
 
 ## Current Status
 
-VisionLab V0.7.0 is released.
+VisionLab V0.8.0 is released.
 
 The current foundation includes:
 
@@ -28,8 +28,10 @@ The current foundation includes:
 - MockTracker for data flow validation
 - Analysis module architecture (Analyzer interface + AnalysisResult)
 - MockAnalyzer for data flow validation
+- UI architecture layer (UIRenderer interface + UIContext data binding)
+- MockUI renderer for data flow validation
 
-V0.7 does **not** include UI, OpenCV, ONNX, CUDA, TensorRT, or AI inference.
+V0.8 does **not** include real window rendering, Dear ImGui, DirectX/Direct2D backend, or user interaction.
 
 The project currently uses only the C++20 standard library and Windows SDK.
 No third-party dependencies.
@@ -172,10 +174,11 @@ Windows-specific sources are excluded via `if(WIN32)` in CMake.
 | V0.5.0 | Detection module architecture (Detector + DetectionResult + MockDetector) |
 | V0.6.0 | Tracking module architecture (Tracker + TrackResult + MockTracker) |
 | V0.7.0 | Analysis module architecture (Analyzer + AnalysisResult + MockAnalyzer) |
+| V0.8.0 | UI architecture layer (UIRenderer + UIContext + MockUI) |
 
 ---
 
 ## Roadmap
 
-- **V0.8**: UI layer
+- **V0.8.x**: Real UI rendering (Dear ImGui + DirectX11, white minimal rounded style)
 - **V1.0**: Full platform release
