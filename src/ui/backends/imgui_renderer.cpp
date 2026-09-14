@@ -53,7 +53,8 @@ bool ImGuiRenderer::initialize(
 
 
     IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
+    imgui_context_ = ImGui::CreateContext();
+    ImGui::SetCurrentContext(imgui_context_);
 
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
@@ -81,6 +82,13 @@ void ImGuiRenderer::shutdown()
         return;
     }
 
+    // Destroy floating window first
+    if (floating_ != nullptr)
+    {
+        floating_->shutdown();
+        delete floating_;
+        floating_ = nullptr;
+    }
 
     if (frame_srv_ != nullptr)
     {
@@ -155,6 +163,12 @@ bool ImGuiRenderer::render(
         return false;
     }
 
+    // Switch to main window's ImGui context
+    if (imgui_context_ != nullptr)
+    {
+        ImGui::SetCurrentContext(imgui_context_);
+    }
+
 
     // Upload frame texture (timed: Map + memcpy + Unmap only)
     if (context.frame != nullptr
@@ -197,14 +211,41 @@ bool ImGuiRenderer::render(
     swap_chain_->Present(1, 0);
 
 
+    // Render floating window if visible
+    if (floating_ != nullptr)
+    {
+        if (!floating_->render(context))
+        {
+            // Floating window closed - destroy it
+            floating_->shutdown();
+            delete floating_;
+            floating_ = nullptr;
+        }
+    }
+
+
     return true;
 }
-
 
 
 bool ImGuiRenderer::should_close() const
 {
     return window_.should_close();
+}
+
+
+void ImGuiRenderer::show_floating()
+{
+    if (floating_ != nullptr) return;
+
+    floating_ = new FloatingWindow();
+    floating_->initialize(900, 560);
+}
+
+
+bool ImGuiRenderer::floating_visible() const
+{
+    return floating_ != nullptr;
 }
 
 

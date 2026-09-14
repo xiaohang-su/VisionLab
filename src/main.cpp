@@ -84,6 +84,11 @@ int main()
     // Mock mode auto-logs-in so the platform UI is visible immediately.
     auth_service.verify_card("MOCK-AUTO-LOGIN");
 
+    // === Show floating detection window after login ===
+#ifdef VISIONLAB_HAS_IMGUI
+    renderer.show_floating();
+#endif
+
     // === Run ===
     if (!app.initialize())
     {

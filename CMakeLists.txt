@@ -300,6 +300,9 @@ if(VISIONLAB_UI_IMGUI)
         src/ui/backends/imgui_renderer.h
         src/ui/backends/imgui_renderer.cpp
 
+        src/ui/backends/floating_window.h
+        src/ui/backends/floating_window.cpp
+
     )
 
 endif()

@@ -106,6 +106,75 @@ bool Win32Window::create(
 
 
 
+bool Win32Window::create_floating(
+    int width,
+    int height,
+    const std::string& title
+)
+{
+    if (hwnd_ != nullptr)
+    {
+        return true;
+    }
+
+    is_floating_ = true;
+
+    HINSTANCE instance = GetModuleHandle(nullptr);
+
+    WNDCLASSEXW wc = {};
+    wc.cbSize = sizeof(WNDCLASSEXW);
+    wc.style = CS_HREDRAW | CS_VREDRAW;
+    wc.lpfnWndProc = wnd_proc;
+    wc.hInstance = instance;
+    wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+    wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
+    wc.lpszClassName = WINDOW_CLASS_NAME;
+
+    if (!RegisterClassExW(&wc))
+    {
+        DWORD error = GetLastError();
+        if (error != ERROR_CLASS_ALREADY_EXISTS)
+        {
+            return false;
+        }
+    }
+
+    std::wstring wide_title(title.begin(), title.end());
+
+    // Floating: popup + layered + toolwindow (no taskbar icon)
+    const DWORD ex_style = WS_EX_LAYERED | WS_EX_TOOLWINDOW;
+    const DWORD style = WS_POPUP;
+
+    hwnd_ = CreateWindowExW(
+        ex_style,
+        WINDOW_CLASS_NAME,
+        wide_title.c_str(),
+        style,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        width,
+        height,
+        nullptr,
+        nullptr,
+        instance,
+        this
+    );
+
+    if (hwnd_ == nullptr)
+    {
+        return false;
+    }
+
+    SetLayeredWindowAttributes(hwnd_, 0, 255, LWA_ALPHA);
+    ShowWindow(hwnd_, SW_SHOW);
+    UpdateWindow(hwnd_);
+
+    should_close_ = false;
+    return true;
+}
+
+
+
 void Win32Window::destroy()
 {
     if (hwnd_ != nullptr)
@@ -167,6 +236,18 @@ LRESULT CALLBACK Win32Window::wnd_proc(
 
     switch (msg)
     {
+    case WM_NCHITTEST:
+    {
+        // For floating windows: allow dragging from entire client area
+        Win32Window* self = reinterpret_cast<Win32Window*>(
+            GetWindowLongPtrW(hwnd, GWLP_USERDATA));
+        if (self != nullptr && self->is_floating_)
+        {
+            return HTCAPTION;
+        }
+        break;
+    }
+
     case WM_DESTROY:
         PostQuitMessage(0);
         return 0;

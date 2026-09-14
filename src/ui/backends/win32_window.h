@@ -26,6 +26,12 @@ public:
         const std::string& title
     );
 
+    // Create a borderless floating tool window (WS_POPUP | WS_EX_LAYERED | WS_EX_TOOLWINDOW)
+    bool create_floating(
+        int width,
+        int height,
+        const std::string& title
+    );
 
     void destroy();
 
@@ -52,6 +58,8 @@ private:
     HWND hwnd_ = nullptr;
 
     bool should_close_ = false;
+
+    bool is_floating_ = false;
 
 };
 

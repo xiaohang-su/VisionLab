@@ -4,6 +4,7 @@
 
 #include "../ui_renderer.h"
 #include "win32_window.h"
+#include "floating_window.h"
 
 #include <d3d11.h>
 
@@ -40,6 +41,11 @@ public:
 
 
     bool should_close() const;
+
+    // Show the floating detection window (called after successful login)
+    void show_floating();
+
+    bool floating_visible() const;
 
 
 private:
@@ -90,6 +96,12 @@ private:
 
 
     bool initialized_ = false;
+
+    // Independent ImGui context for main window
+    struct ImGuiContext* imgui_context_ = nullptr;
+
+    // Floating window (shown after login)
+    FloatingWindow* floating_ = nullptr;
 
     // V1.1 Platform UI state
     enum class NavPage { AI, Monitor, Models, Settings, About };
