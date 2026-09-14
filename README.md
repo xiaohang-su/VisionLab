@@ -4,11 +4,11 @@ A modular computer vision experimentation and runtime platform for Windows 10/11
 
 ## Version
 
-**V0.4.1 - Runtime Frame Loop**
+**V0.5.0 - Detection Module Architecture**
 
 ## Current Status
 
-VisionLab V0.4.1 is released.
+VisionLab V0.5.0 is released.
 
 The current foundation includes:
 
@@ -22,6 +22,10 @@ The current foundation includes:
 - Windows ScreenCaptureSource (Graphics Capture API)
 - Vision Pipeline architecture (VisionProcessor + VisionPipeline + ImageView)
 - Runtime frame loop connecting Capture → VisionPipeline
+- Detection module architecture (Detector interface + DetectionResult)
+- MockDetector for data flow validation
+
+V0.5 does **not** include AI inference, ONNX, YOLO, or GPU acceleration.
 
 The project currently uses only the C++20 standard library and Windows SDK.
 No third-party dependencies.
@@ -161,12 +165,12 @@ Windows-specific sources are excluded via `if(WIN32)` in CMake.
 | V0.3.1 | Windows ScreenCaptureSource (Graphics Capture API) |
 | V0.4.0 | Vision Pipeline architecture (VisionProcessor + VisionPipeline + ImageView) |
 | V0.4.1 | Runtime frame loop connecting Capture → VisionPipeline |
+| V0.5.0 | Detection module architecture (Detector + DetectionResult + MockDetector) |
 
 ---
 
 ## Roadmap
 
-- **V0.5**: Detection module
 - **V0.6**: Tracking module
 - **V0.7**: Analysis module
 - **V0.8**: UI layer
