@@ -15,6 +15,10 @@ Runtime::~Runtime() {
     }
 }
 
+const char* Runtime::name() const {
+    return "Runtime";
+}
+
 bool Runtime::initialize() {
     if (state_ != RuntimeState::Created) {
         logger_.error(

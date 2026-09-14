@@ -13,6 +13,7 @@ public:
     Runtime();
     ~Runtime();
 
+    const char* name() const override;
     bool initialize() override;
     bool start() override;
     bool stop() override;
