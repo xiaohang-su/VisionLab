@@ -6,14 +6,15 @@ namespace visionlab::capture {
 
 Capture::Capture()
     :
-    running_(false)
+    running_(false),
+    frame_count_(0)
 {
 }
 
 
 Capture::~Capture()
 {
-    if(running_)
+    if (running_)
     {
         stop();
     }
@@ -30,6 +31,8 @@ const char* Capture::name() const
 
 bool Capture::initialize()
 {
+    frame_count_ = 0;
+
     return true;
 }
 
@@ -47,6 +50,33 @@ bool Capture::start()
 bool Capture::stop()
 {
     running_ = false;
+
+    return true;
+}
+
+
+
+bool Capture::get_frame(
+    core::types::Frame& frame
+)
+{
+
+    if (!running_)
+    {
+        return false;
+    }
+
+
+    frame_count_++;
+
+
+    frame.id.value = frame_count_;
+
+
+    frame.width = 1920;
+
+    frame.height = 1080;
+
 
     return true;
 }
