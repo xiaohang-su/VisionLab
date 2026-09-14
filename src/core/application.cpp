@@ -1,5 +1,8 @@
 #include "application.h"
 
+#include <chrono>
+#include <thread>
+
 
 namespace visionlab {
 
@@ -81,6 +84,83 @@ void Application::run()
         return;
     }
 
+
+    logger_.info("Frame loop started.");
+
+
+    running_ = true;
+
+
+    std::uint64_t frame_count = 0;
+
+    const auto start_time = std::chrono::steady_clock::now();
+
+
+    while (running_)
+    {
+
+        if (!capture_.get_frame(original_frame_))
+        {
+            std::this_thread::sleep_for(
+                std::chrono::milliseconds(1)
+            );
+
+            continue;
+        }
+
+
+        if (!vision_pipeline_.process(
+                original_frame_,
+                processed_frame_
+            ))
+        {
+            logger_.warning(
+                "Vision pipeline processing failed."
+            );
+
+            continue;
+        }
+
+
+        frame_count++;
+
+
+        if (frame_count % 100 == 0)
+        {
+            logger_.info(
+                "Frames processed: "
+                + std::to_string(frame_count)
+            );
+        }
+
+    }
+
+
+    running_ = false;
+
+
+    const auto end_time = std::chrono::steady_clock::now();
+
+    const auto duration =
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            end_time - start_time
+        );
+
+    const double fps =
+        (duration.count() > 0)
+            ? (static_cast<double>(frame_count) * 1000.0
+               / static_cast<double>(duration.count()))
+            : 0.0;
+
+
+    logger_.info(
+        "Frame loop stopped. Total frames: "
+        + std::to_string(frame_count)
+        + ", "
+        + std::to_string(fps)
+        + " FPS"
+    );
+
 }
 
 
@@ -92,6 +172,9 @@ void Application::shutdown()
     {
         return;
     }
+
+
+    running_ = false;
 
 
     module_manager_.stop_all();
@@ -118,6 +201,13 @@ void Application::set_capture_source(
 vision::VisionPipeline& Application::vision_pipeline()
 {
     return vision_pipeline_;
+}
+
+
+
+void Application::request_stop()
+{
+    running_ = false;
 }
 
 

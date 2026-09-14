@@ -29,6 +29,9 @@ public:
     void shutdown();
 
 
+    void request_stop();
+
+
     void set_capture_source(
         capture::CaptureSource* source
     );
@@ -55,6 +58,12 @@ private:
 
 
     bool initialized_;
+
+    bool running_ = false;
+
+    core::types::Frame original_frame_;
+
+    core::types::Frame processed_frame_;
 
 };
 
