@@ -115,4 +115,11 @@ void Application::set_capture_source(
 
 
 
+vision::VisionPipeline& Application::vision_pipeline()
+{
+    return vision_pipeline_;
+}
+
+
+
 }

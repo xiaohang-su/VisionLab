@@ -7,6 +7,8 @@
 
 #include "../capture/capture.h"
 
+#include "../vision/vision_pipeline.h"
+
 #include "logging/logger.h"
 #include "config/config.h"
 
@@ -32,6 +34,9 @@ public:
     );
 
 
+    vision::VisionPipeline& vision_pipeline();
+
+
 private:
 
     config::Config config_;
@@ -43,6 +48,8 @@ private:
     runtime::Runtime runtime_;
 
     capture::Capture capture_;
+
+    vision::VisionPipeline vision_pipeline_;
 
     core::ModuleManager module_manager_;
 

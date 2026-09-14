@@ -125,6 +125,23 @@ endif()
 
 
 # =========================
+# Vision
+# =========================
+
+set(VISION_SOURCES
+
+    src/vision/vision_processor.h
+    src/vision/image_view.h
+    src/vision/vision_pipeline.h
+    src/vision/vision_pipeline.cpp
+    src/vision/pass_through_processor.h
+    src/vision/pass_through_processor.cpp
+
+)
+
+
+
+# =========================
 # Executable
 # =========================
 
@@ -143,6 +160,8 @@ add_executable(VisionLab
     ${CONFIG_SOURCES}
 
     ${CAPTURE_SOURCES}
+
+    ${VISION_SOURCES}
 
 )
 
