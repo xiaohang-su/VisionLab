@@ -165,6 +165,29 @@ void Application::run()
         }
 
 
+        // Update UI context with read-only references
+        ui_context_.frame = &processed_frame_;
+        ui_context_.detections = &detection_result_;
+        ui_context_.tracks = &track_result_;
+        ui_context_.analysis = &analysis_result_;
+        ui_context_.frame_count = frame_count;
+
+        {
+            const auto now = std::chrono::steady_clock::now();
+            const auto elapsed =
+                std::chrono::duration_cast<std::chrono::milliseconds>(
+                    now - start_time
+                );
+            ui_context_.fps =
+                (elapsed.count() > 0)
+                    ? (static_cast<float>(frame_count) * 1000.0f
+                       / static_cast<float>(elapsed.count()))
+                    : 0.0f;
+        }
+
+        ui_.render(ui_context_);
+
+
         frame_count++;
 
 
@@ -271,6 +294,15 @@ void Application::set_analyzer(
 )
 {
     analyzer_ = analyzer;
+}
+
+
+
+void Application::set_renderer(
+    ui::UIRenderer* renderer
+)
+{
+    ui_.set_renderer(renderer);
 }
 
 

@@ -4,6 +4,7 @@
 #include "detection/mock_detector.h"
 #include "tracking/mock_tracker.h"
 #include "analysis/mock_analyzer.h"
+#include "ui/mock_ui.h"
 
 #ifdef _WIN32
 #include "capture/screen_capture_source.h"
@@ -43,6 +44,11 @@ int main()
     visionlab::analysis::MockAnalyzer analyzer;
 
     app.set_analyzer(&analyzer);
+
+
+    visionlab::ui::MockUI mock_ui;
+
+    app.set_renderer(&mock_ui);
 
 
     if (!app.initialize())

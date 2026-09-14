@@ -15,6 +15,9 @@
 
 #include "../analysis/analyzer.h"
 
+#include "../ui/ui.h"
+#include "../ui/ui_context.h"
+
 #include "logging/logger.h"
 #include "config/config.h"
 
@@ -61,6 +64,11 @@ public:
     );
 
 
+    void set_renderer(
+        ui::UIRenderer* renderer
+    );
+
+
 private:
 
     config::Config config_;
@@ -97,6 +105,10 @@ private:
     analysis::Analyzer* analyzer_ = nullptr;
 
     analysis::AnalysisResult analysis_result_;
+
+    ui::UI ui_;
+
+    ui::UIContext ui_context_;
 
 };
 

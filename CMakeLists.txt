@@ -190,6 +190,23 @@ set(ANALYSIS_SOURCES
 
 
 # =========================
+# UI
+# =========================
+
+set(UI_SOURCES
+
+    src/ui/ui_context.h
+    src/ui/ui_renderer.h
+    src/ui/ui.h
+    src/ui/ui.cpp
+    src/ui/mock_ui.h
+    src/ui/mock_ui.cpp
+
+)
+
+
+
+# =========================
 # Executable
 # =========================
 
@@ -216,6 +233,8 @@ add_executable(VisionLab
     ${TRACKING_SOURCES}
 
     ${ANALYSIS_SOURCES}
+
+    ${UI_SOURCES}
 
 )
 
