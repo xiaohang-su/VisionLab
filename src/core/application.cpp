@@ -18,6 +18,12 @@ bool Application::initialize()
 
     logger_.info("VisionLab starting...");
 
+    if (!runtime_.initialize())
+    {
+        logger_.error("Runtime initialization failed.");
+        return false;
+    }
+
     initialized_ = true;
 
     return true;
@@ -30,11 +36,7 @@ void Application::run()
         return;
     }
 
-    logger_.info("Runtime started");
-
-    runtime_.initialize();
-
-    runtime_.run();
+    runtime_.start();
 }
 
 void Application::shutdown()
@@ -44,9 +46,12 @@ void Application::shutdown()
         return;
     }
 
-    runtime_.shutdown();
+    runtime_.stop();
 
     logger_.info("VisionLab shutdown");
+
+    initialized_ = false;
 }
 
 }
+
