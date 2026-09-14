@@ -4,6 +4,7 @@
 #include "../core/core_types.h"
 
 #include "frame_provider.h"
+#include "capture_source.h"
 
 #include <cstdint>
 
@@ -38,11 +39,18 @@ public:
     ) override;
 
 
+    void set_source(
+        CaptureSource* source
+    );
+
+
 private:
 
     bool running_;
 
     std::uint64_t frame_count_;
+
+    CaptureSource* source_;
 
 };
 

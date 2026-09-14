@@ -108,7 +108,19 @@ set(CAPTURE_SOURCES
     src/capture/frame_provider.h
     src/capture/capture_source.h
 
+    src/capture/mock_capture_source.h
+    src/capture/mock_capture_source.cpp
+
 )
+
+if(WIN32)
+    list(APPEND CAPTURE_SOURCES
+
+        src/capture/screen_capture_source.h
+        src/capture/screen_capture_source.cpp
+
+    )
+endif()
 
 
 
@@ -134,6 +146,16 @@ add_executable(VisionLab
 
 )
 
+
+if(WIN32)
+    target_link_libraries(VisionLab PRIVATE
+
+        d3d11.lib
+        dxgi.lib
+        windowsapp.lib
+
+    )
+endif()
 
 
 # =========================
