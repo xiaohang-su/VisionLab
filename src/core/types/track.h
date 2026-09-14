@@ -1,23 +1,20 @@
 #pragma once
 
-#include "detection.h"
+#include "id.h"
+#include "timestamp.h"
+
+#include <cstdint>
 
 namespace visionlab::core::types {
 
-enum class TrackState {
-    Active,
-    Lost
-};
-
-struct Track {
+struct Track
+{
     Id id;
+    Timestamp timestamp;
 
-    std::int32_t class_id = -1;
-    float confidence = 0.0f;
+    std::uint32_t detection_count = 0;
 
-    BoundingBox bounding_box;
-
-    TrackState state = TrackState::Active;
+    bool active = false;
 };
 
 }

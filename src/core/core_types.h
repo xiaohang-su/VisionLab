@@ -6,4 +6,3 @@
 #include "types/frame.h"
 #include "types/detection.h"
 #include "types/track.h"
-#include "types/detection.h"
