@@ -6,6 +6,10 @@ project(VisionLab VERSION 1.1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Static-link MSVC runtime (/MT Release, /MTd Debug)
+# so the EXE needs no VC++ Redistributable.
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+
 
 option(VISIONLAB_UI_IMGUI "Enable ImGui DX11 UI backend" OFF)
 option(VISIONLAB_ENABLE_SCREEN_CAPTURE "Enable Windows Graphics Capture (MSVC only)" OFF)
