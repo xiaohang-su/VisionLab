@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(VisionLab VERSION 0.9.6 LANGUAGES CXX)
+project(VisionLab VERSION 1.1.0 LANGUAGES CXX)
 
 
 set(CMAKE_CXX_STANDARD 20)
@@ -160,8 +160,51 @@ set(DETECTION_SOURCES
     src/detection/detection_types.h
     src/detection/detection_result.h
     src/detection/detector.h
+    src/detection/inference_detector.h
     src/detection/mock_detector.h
     src/detection/mock_detector.cpp
+
+)
+
+
+
+# =========================
+# Inference (V1.1)
+# =========================
+
+set(INFERENCE_SOURCES
+
+    src/inference/model_info.h
+    src/inference/inference_backend.h
+    src/inference/mock_inference_backend.h
+
+)
+
+
+
+# =========================
+# Auth (V1.1)
+# =========================
+
+set(AUTH_SOURCES
+
+    src/auth/auth_types.h
+    src/auth/auth_service.h
+    src/auth/mock_auth_service.h
+
+)
+
+
+
+# =========================
+# Platform (V1.1)
+# =========================
+
+set(PLATFORM_SOURCES
+
+    src/platform/platform_types.h
+    src/platform/platform_service.h
+    src/platform/mock_platform_service.h
 
 )
 
@@ -286,6 +329,12 @@ add_executable(VisionLab
     ${VISION_SOURCES}
 
     ${DETECTION_SOURCES}
+
+    ${INFERENCE_SOURCES}
+
+    ${AUTH_SOURCES}
+
+    ${PLATFORM_SOURCES}
 
     ${TRACKING_SOURCES}
 

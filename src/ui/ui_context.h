@@ -5,8 +5,11 @@
 #include "../tracking/track_result.h"
 #include "../analysis/analysis_result.h"
 #include "../runtime/runtime_metrics.h"
+#include "../auth/auth_types.h"
+#include "../platform/platform_types.h"
 
 #include <cstdint>
+#include <vector>
 
 
 namespace visionlab::ui {
@@ -32,6 +35,24 @@ struct UIContext
 
     // UI feedback (V0.9.3): written by renderer during render()
     mutable double texture_upload_ms = 0.0;
+
+
+    // === V1.1 Platform fields ===
+
+    // Auth session (nullptr = not logged in)
+    const auth::UserSession* session = nullptr;
+
+    // Platform info (version, official group, server status)
+    const platform::PlatformInfo* platform_info = nullptr;
+
+    // Current weather
+    const platform::WeatherInfo* weather = nullptr;
+
+    // Announcement list
+    const std::vector<platform::Announcement>* announcements = nullptr;
+
+    // Current time string (HH:MM:SS)
+    const char* time_string = nullptr;
 
 };
 

@@ -475,16 +475,259 @@ void ImGuiRenderer::build_ui(
     const UIContext& context
 )
 {
-    // Main window
+    // Full-screen main window
     ImGui::Begin("VisionLab", nullptr,
-        ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove);
+        ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize);
 
     ImGui::SetWindowPos(ImVec2(0, 0));
     ImGui::SetWindowSize(ImGui::GetIO().DisplaySize);
 
+    // Top bar: announcement + time + weather
+    build_top_bar(context);
 
-    // Frame Viewer
-    ImGui::BeginChild("FrameViewer", ImVec2(0, -200), true);
+    // Main layout: side nav + content
+    const float nav_width = 140.0f;
+    const float bottom_height = 30.0f;
+    const ImVec2 display = ImGui::GetIO().DisplaySize;
+    const float content_height = display.y - 50.0f - bottom_height;
+
+    // Side navigation
+    ImGui::BeginChild("SideNav", ImVec2(nav_width, content_height), true);
+    build_side_nav();
+    ImGui::EndChild();
+
+    ImGui::SameLine();
+
+    // Main content area
+    ImGui::BeginChild("MainContent",
+        ImVec2(display.x - nav_width - 10, content_height), true);
+
+    const bool logged_in = (context.session != nullptr && context.session->active);
+
+    if (!logged_in)
+    {
+        build_login_page(context);
+    }
+    else
+    {
+        build_main_area(context);
+    }
+
+    ImGui::EndChild();
+
+    // Bottom bar
+    build_bottom_bar(context);
+
+    ImGui::End();
+}
+
+
+void ImGuiRenderer::build_top_bar(const UIContext& context)
+{
+    ImGui::BeginChild("TopBar", ImVec2(0, 46), true);
+
+    // Left: announcement
+    if (context.announcements != nullptr && !context.announcements->empty())
+    {
+        const auto& a = (*context.announcements)[0];
+        ImGui::Text("📢 %s", a.title.c_str());
+        ImGui::SameLine();
+        ImGui::TextDisabled("  %s", a.content.c_str());
+    }
+    else
+    {
+        ImGui::Text("📢 VisionLab AI 视觉平台");
+    }
+
+    // Right: time + weather
+    ImGui::SameLine(ImGui::GetWindowWidth() - 280);
+
+    if (context.time_string != nullptr)
+    {
+        ImGui::Text("⏰ %s", context.time_string);
+    }
+
+    if (context.weather != nullptr)
+    {
+        ImGui::SameLine();
+        const char* icon = "☀️";
+        switch (context.weather->condition)
+        {
+            case platform::WeatherCondition::Sunny:  icon = "☀️"; break;
+            case platform::WeatherCondition::Cloudy: icon = "⛅"; break;
+            case platform::WeatherCondition::Rainy:  icon = "🌧️"; break;
+            case platform::WeatherCondition::Snowy:  icon = "❄️"; break;
+            default: icon = "🌡️"; break;
+        }
+        ImGui::SameLine();
+        ImGui::Text("%s %.0f°C %s",
+            icon,
+            context.weather->temperature_c,
+            context.weather->city.c_str());
+    }
+
+    ImGui::EndChild();
+}
+
+
+void ImGuiRenderer::build_side_nav()
+{
+    ImGui::Spacing();
+    ImGui::Spacing();
+
+    // Logo / title
+    ImGui::Text("  VisionLab");
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    struct NavItem {
+        const char* label;
+        NavPage page;
+        const char* icon;
+    };
+
+    const NavItem items[] = {
+        {"AI 检测",  NavPage::AI,       "🎯"},
+        {"监控",     NavPage::Monitor,  "📊"},
+        {"模型",     NavPage::Models,   "🧠"},
+        {"设置",     NavPage::Settings, "⚙️"},
+        {"说明",     NavPage::About,    "ℹ️"},
+    };
+
+    for (const auto& item : items)
+    {
+        const bool selected = (current_page_ == item.page);
+
+        if (selected)
+        {
+            ImGui::PushStyleColor(ImGuiCol_Button,
+                ImVec4(0.90f, 0.90f, 0.95f, 1.0f));
+        }
+
+        if (ImGui::Button(
+            (std::string(item.icon) + "  " + item.label).c_str(),
+            ImVec2(-1, 36)))
+        {
+            current_page_ = item.page;
+        }
+
+        if (selected)
+        {
+            ImGui::PopStyleColor();
+        }
+
+        ImGui::Spacing();
+    }
+}
+
+
+void ImGuiRenderer::build_main_area(const UIContext& context)
+{
+    switch (current_page_)
+    {
+        case NavPage::AI:       build_ai_page(context); break;
+        case NavPage::Monitor:  build_monitor_page(context); break;
+        case NavPage::Models:   build_models_page(context); break;
+        case NavPage::Settings: build_settings_page(context); break;
+        case NavPage::About:    build_about_page(context); break;
+    }
+}
+
+
+void ImGuiRenderer::build_bottom_bar(const UIContext& context)
+{
+    ImGui::BeginChild("BottomBar", ImVec2(0, 28), true);
+
+    if (context.platform_info != nullptr)
+    {
+        ImGui::Text("%s", context.platform_info->official_group.c_str());
+        ImGui::SameLine(ImGui::GetWindowWidth() - 300);
+        ImGui::Text("v%s", context.platform_info->app_version.c_str());
+        ImGui::SameLine();
+
+        const ImVec4 status_color = context.platform_info->server_online
+            ? ImVec4(0.0f, 0.6f, 0.0f, 1.0f)
+            : ImVec4(0.8f, 0.0f, 0.0f, 1.0f);
+        ImGui::TextColored(status_color, "● %s",
+            context.platform_info->server_status.c_str());
+    }
+    else
+    {
+        ImGui::Text("VisionLab  |  官方群: 待填写");
+    }
+
+    ImGui::EndChild();
+}
+
+
+void ImGuiRenderer::build_login_page(const UIContext& context)
+{
+    // Center the login form
+    const ImVec2 avail = ImGui::GetContentRegionAvail();
+    const float form_width = 360.0f;
+    const float form_height = 280.0f;
+
+    ImGui::SetCursorPos(ImVec2(
+        (avail.x - form_width) * 0.5f,
+        (avail.y - form_height) * 0.5f
+    ));
+
+    ImGui::BeginChild("LoginForm", ImVec2(form_width, form_height), true,
+        ImGuiWindowFlags_NoScrollbar);
+
+    ImGui::Spacing();
+    ImGui::Spacing();
+    // Center title
+    const char* title = "VisionLab 登录";
+    const float title_width = ImGui::CalcTextSize(title).x;
+    ImGui::SetCursorPosX((form_width - title_width) * 0.5f);
+    ImGui::Text("%s", title);
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    ImGui::Spacing();
+
+    ImGui::Text("卡密:");
+    ImGui::SetNextItemWidth(-1);
+    ImGui::InputText("##card", card_input_, sizeof(card_input_),
+        ImGuiInputTextFlags_Password);
+
+    ImGui::Spacing();
+    ImGui::Spacing();
+
+    if (ImGui::Button("登 录", ImVec2(-1, 36)))
+    {
+        login_attempted_ = true;
+        // Note: actual verification happens in Application via AuthService.
+        // UI only collects input; Application calls auth_->verify_card().
+        std::snprintf(login_message_, sizeof(login_message_),
+            "正在验证... (Mock 模式直接通过)");
+    }
+
+    ImGui::Spacing();
+
+    if (login_attempted_ && login_message_[0] != '\0')
+    {
+        ImGui::TextColored(ImVec4(0.0f, 0.5f, 0.8f, 1.0f),
+            "%s", login_message_);
+    }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+    ImGui::TextDisabled("提示: 当前为 Mock 认证模式");
+    ImGui::TextDisabled("任意卡密均可登录 (开发环境)");
+
+    ImGui::EndChild();
+}
+
+
+void ImGuiRenderer::build_ai_page(const UIContext& context)
+{
+    // Frame Viewer with overlays
+    ImGui::BeginChild("FrameViewer", ImVec2(0, -160), true);
 
     if (frame_srv_ != nullptr && frame_texture_width_ > 0)
     {
@@ -498,18 +741,13 @@ void ImGuiRenderer::build_ui(
             avail.y / img_height
         );
 
-        ImVec2 display_size(
-            img_width * scale,
-            img_height * scale
-        );
-
+        ImVec2 display_size(img_width * scale, img_height * scale);
         ImVec2 cursor = ImGui::GetCursorScreenPos();
 
         ImGui::Image(
             reinterpret_cast<ImTextureID>(frame_srv_),
             display_size
         );
-
 
         // Detection Overlay
         if (context.detections != nullptr)
@@ -538,7 +776,6 @@ void ImGuiRenderer::build_ui(
                 draw_list->AddText(p1, IM_COL32(0, 0, 0, 255), label.c_str());
             }
         }
-
 
         // Tracking Overlay
         if (context.tracks != nullptr)
@@ -572,129 +809,250 @@ void ImGuiRenderer::build_ui(
     }
     else
     {
-        ImGui::Text("No frame data");
+        ImGui::Text("等待画面输入...");
     }
 
     ImGui::EndChild();
 
+    // Quick stats below frame
+    ImGui::BeginChild("AIStats", ImVec2(0, 0), true);
 
-    // Performance Dashboard (V0.9.4)
-    ImGui::BeginChild("AnalysisPanel", ImVec2(0, 0), true);
-
-    ImGui::Text("Performance Dashboard");
-    ImGui::Separator();
-
-    // --- Analysis Data ---
     if (context.analysis != nullptr)
     {
-        ImGui::Text("Detection: %d", context.analysis->detection_count);
-        ImGui::Text("Active Tracks: %d", context.analysis->active_track_count);
-
-        for (const auto& stat : context.analysis->class_stats)
-        {
-            ImGui::Text("  class %d: %d", stat.class_id, stat.count);
-        }
-    }
-    else
-    {
-        ImGui::Text("No analysis data");
+        ImGui::Text("检测目标: %d", context.analysis->detection_count);
+        ImGui::SameLine(200);
+        ImGui::Text("活跃跟踪: %d", context.analysis->active_track_count);
     }
 
-
-    // --- Runtime Metrics ---
     if (context.metrics != nullptr)
     {
-        const auto& m = *context.metrics;
-
-        const double frame_time =
-            m.capture_ms + m.vision_ms + m.detection_ms +
-            m.tracking_ms + m.analysis_ms + m.render_ms;
-
-        ImGui::Separator();
-        ImGui::Text("Frame Time: %.2f ms", frame_time);
+        ImGui::SameLine(400);
         ImGui::Text("FPS: %.1f", context.fps);
-        ImGui::Text("Frame: %llu",
-            static_cast<unsigned long long>(context.frame_count));
-
-
-        // --- Stage Timeline ---
-        ImGui::Separator();
-        ImGui::Text("Stage Timeline");
-
-        StageCost stages[6] = {
-            {"Capture",   m.capture_ms},
-            {"Vision",    m.vision_ms},
-            {"Detection", m.detection_ms},
-            {"Tracking",  m.tracking_ms},
-            {"Analysis",  m.analysis_ms},
-            {"Render",    m.render_ms},
-        };
-
-        for (const auto& stage : stages)
-        {
-            const double ratio =
-                (frame_time > 0.0) ? (stage.ms / frame_time) : 0.0;
-
-            const ImVec4 color = stage_color(ratio);
-
-            char label[64];
-            std::snprintf(label, sizeof(label),
-                "%-10s %6.2f ms", stage.name, stage.ms);
-
-            ImGui::PushStyleColor(ImGuiCol_PlotHistogram, color);
-            ImGui::ProgressBar(static_cast<float>(ratio),
-                ImVec2(-1, 0), label);
-            ImGui::PopStyleColor();
-        }
-
-
-        // --- Bottleneck Ranking ---
-        ImGui::Separator();
-        ImGui::Text("Bottleneck Ranking");
-
-        StageCost sorted[6];
-        for (int i = 0; i < 6; i++) sorted[i] = stages[i];
-
-        std::sort(sorted, sorted + 6,
-            [](const StageCost& a, const StageCost& b) {
-                return a.ms > b.ms;
-            });
-
-        for (int i = 0; i < 3; i++)
-        {
-            const double ratio =
-                (frame_time > 0.0) ? (sorted[i].ms / frame_time) : 0.0;
-
-            const ImVec4 color = stage_color(ratio);
-
-            ImGui::TextColored(color, "%d. %-10s %5.1f%%",
-                i + 1, sorted[i].name, ratio * 100.0);
-        }
-
-
-        // --- Memory Flow ---
-        ImGui::Separator();
-        ImGui::Text("Memory Flow");
-        ImGui::Text("Frame Size:  %.2f MB",
-            m.frame_data_bytes / (1024.0 * 1024.0));
-        ImGui::Text("Copy Total:  %.2f MB",
-            m.frame_copy_bytes / (1024.0 * 1024.0));
-        ImGui::Text("Upload Total: %.2f MB (%llu)",
-            m.texture_upload_bytes / (1024.0 * 1024.0),
-            static_cast<unsigned long long>(m.texture_upload_count));
-        ImGui::Text("Upload Time: %.3f ms", m.texture_upload_ms);
-        ImGui::Text("Copy BW:     %.1f MB/s", m.vision_copy_bandwidth_MBps);
-        ImGui::Text("Allocation:  %llu",
-            static_cast<unsigned long long>(m.frame_allocation_count));
-        ImGui::Text("Logger:      %.2f ms (%llu calls)",
-            m.logger_ms,
-            static_cast<unsigned long long>(m.log_count));
+        ImGui::SameLine(520);
+        ImGui::Text("推理: %.2f ms", context.metrics->detection_ms);
     }
 
     ImGui::EndChild();
+}
 
 
-    ImGui::End();
+void ImGuiRenderer::build_monitor_page(const UIContext& context)
+{
+    ImGui::Text("性能监控");
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    if (context.metrics == nullptr)
+    {
+        ImGui::Text("无性能数据");
+        return;
+    }
+
+    const auto& m = *context.metrics;
+
+    const double frame_time =
+        m.capture_ms + m.vision_ms + m.detection_ms +
+        m.tracking_ms + m.analysis_ms + m.render_ms;
+
+    // Summary
+    ImGui::Text("Frame Time: %.2f ms", frame_time);
+    ImGui::SameLine(200);
+    ImGui::Text("FPS: %.1f", context.fps);
+    ImGui::SameLine(350);
+    ImGui::Text("Frame: %llu",
+        static_cast<unsigned long long>(context.frame_count));
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Text("阶段耗时");
+
+    StageCost stages[6] = {
+        {"Capture",   m.capture_ms},
+        {"Vision",    m.vision_ms},
+        {"Detection", m.detection_ms},
+        {"Tracking",  m.tracking_ms},
+        {"Analysis",  m.analysis_ms},
+        {"Render",    m.render_ms},
+    };
+
+    for (const auto& stage : stages)
+    {
+        const double ratio =
+            (frame_time > 0.0) ? (stage.ms / frame_time) : 0.0;
+
+        const ImVec4 color = stage_color(ratio);
+
+        char label[64];
+        std::snprintf(label, sizeof(label),
+            "%-10s %6.2f ms", stage.name, stage.ms);
+
+        ImGui::PushStyleColor(ImGuiCol_PlotHistogram, color);
+        ImGui::ProgressBar(static_cast<float>(ratio),
+            ImVec2(-1, 0), label);
+        ImGui::PopStyleColor();
+    }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Text("瓶颈排名");
+
+    StageCost sorted[6];
+    for (int i = 0; i < 6; i++) sorted[i] = stages[i];
+
+    std::sort(sorted, sorted + 6,
+        [](const StageCost& a, const StageCost& b) {
+            return a.ms > b.ms;
+        });
+
+    for (int i = 0; i < 3; i++)
+    {
+        const double ratio =
+            (frame_time > 0.0) ? (sorted[i].ms / frame_time) : 0.0;
+
+        const ImVec4 color = stage_color(ratio);
+
+        ImGui::TextColored(color, "%d. %-10s %5.1f%%",
+            i + 1, sorted[i].name, ratio * 100.0);
+    }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Text("内存流");
+    ImGui::Text("Frame Size:  %.2f MB",
+        m.frame_data_bytes / (1024.0 * 1024.0));
+    ImGui::Text("Copy Total:  %.2f MB",
+        m.frame_copy_bytes / (1024.0 * 1024.0));
+    ImGui::Text("Upload Total: %.2f MB (%llu)",
+        m.texture_upload_bytes / (1024.0 * 1024.0),
+        static_cast<unsigned long long>(m.texture_upload_count));
+    ImGui::Text("Upload Time: %.3f ms", m.texture_upload_ms);
+    ImGui::Text("Copy BW:     %.1f MB/s", m.vision_copy_bandwidth_MBps);
+    ImGui::Text("Logger:      %.2f ms (%llu calls)",
+        m.logger_ms,
+        static_cast<unsigned long long>(m.log_count));
+}
+
+
+void ImGuiRenderer::build_models_page(const UIContext& context)
+{
+    ImGui::Text("模型管理");
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    ImGui::Text("当前模型: Mock (无真实模型)");
+    ImGui::Spacing();
+
+    ImGui::Text("支持格式:");
+    ImGui::BulletText("ONNX (.onnx) - YOLOv5/v8");
+    ImGui::BulletText("TensorRT Engine (.engine) - 未来");
+    ImGui::BulletText("PyTorch (.pt) - 未来");
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Text("模型列表 (models/ 目录)");
+    ImGui::TextDisabled("  暂无模型文件");
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Text("推理后端:");
+    ImGui::BulletText("Mock (当前)");
+    ImGui::BulletText("ONNX Runtime CPU - 待接入");
+    ImGui::BulletText("ONNX Runtime CUDA - 待接入");
+    ImGui::BulletText("TensorRT - 待接入");
+    ImGui::BulletText("DirectML - 待接入");
+}
+
+
+void ImGuiRenderer::build_settings_page(const UIContext& context)
+{
+    ImGui::Text("设置");
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    // User info
+    if (context.session != nullptr && context.session->active)
+    {
+        ImGui::Text("当前用户: %s", context.session->card.nickname.c_str());
+        ImGui::Text("卡密: %s", context.session->card.card_code.c_str());
+        ImGui::Text("到期时间: %s", context.session->card.expire_time.c_str());
+        ImGui::Text("剩余天数: %d 天", context.session->card.remaining_days);
+    }
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Text("检测参数");
+
+    static float conf_threshold = 0.25f;
+    static float iou_threshold = 0.45f;
+
+    ImGui::SliderFloat("置信度阈值", &conf_threshold, 0.0f, 1.0f, "%.2f");
+    ImGui::SliderFloat("IOU 阈值", &iou_threshold, 0.0f, 1.0f, "%.2f");
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Text("显示设置");
+
+    static bool show_detection = true;
+    static bool show_tracking = true;
+    static bool show_labels = true;
+
+    ImGui::Checkbox("显示检测框", &show_detection);
+    ImGui::Checkbox("显示跟踪 ID", &show_tracking);
+    ImGui::Checkbox("显示标签", &show_labels);
+
+    ImGui::Spacing();
+    ImGui::Separator();
+
+    if (ImGui::Button("退出登录", ImVec2(120, 30)))
+    {
+        // Note: actual logout handled by Application via AuthService
+    }
+}
+
+
+void ImGuiRenderer::build_about_page(const UIContext& context)
+{
+    ImGui::Text("关于 VisionLab");
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    if (context.platform_info != nullptr)
+    {
+        ImGui::Text("名称: %s", context.platform_info->app_name.c_str());
+        ImGui::Text("版本: %s", context.platform_info->app_version.c_str());
+    }
+
+    ImGui::Spacing();
+    ImGui::Text("定位: 模块化 AI 计算机视觉平台");
+    ImGui::Text("语言: C++20");
+    ImGui::Text("UI: Dear ImGui + DirectX11");
+    ImGui::Text("平台: Windows 10/11");
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Text("架构模块:");
+    ImGui::BulletText("Core - 基础类型与工具");
+    ImGui::BulletText("Runtime - 运行时调度与性能指标");
+    ImGui::BulletText("Capture - 画面采集 (屏幕/摄像头)");
+    ImGui::BulletText("Vision - 图像处理管线");
+    ImGui::BulletText("Detection - 目标检测 (YOLO)");
+    ImGui::BulletText("Tracking - 多目标跟踪");
+    ImGui::BulletText("Analysis - 数据分析");
+    ImGui::BulletText("Inference - 推理后端抽象 (ONNX/TRT/DML)");
+    ImGui::BulletText("Auth - 卡密认证 (微验对接)");
+    ImGui::BulletText("Platform - 平台信息服务");
+    ImGui::BulletText("UI - 可视化界面");
+
+    ImGui::Spacing();
+    ImGui::Separator();
+
+    if (context.platform_info != nullptr)
+    {
+        ImGui::Text("官方网站: %s",
+            context.platform_info->official_website.c_str());
+        ImGui::Text("官方群: %s",
+            context.platform_info->official_group.c_str());
+    }
 }
 
 

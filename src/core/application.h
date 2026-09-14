@@ -21,8 +21,15 @@
 #include "../ui/ui.h"
 #include "../ui/ui_context.h"
 
+#include "../auth/auth_service.h"
+#include "../platform/platform_service.h"
+#include "../inference/inference_backend.h"
+
 #include "logging/logger.h"
 #include "config/config.h"
+
+#include <string>
+#include <vector>
 
 
 namespace visionlab {
@@ -72,6 +79,12 @@ public:
     );
 
 
+    // V1.1 Platform services
+    void set_auth_service(auth::AuthService* service);
+    void set_platform_service(platform::PlatformService* service);
+    void set_inference_backend(inference::InferenceBackend* backend);
+
+
 private:
 
     config::Config config_;
@@ -114,6 +127,17 @@ private:
     ui::UIContext ui_context_;
 
     runtime::RuntimeMetrics metrics_;
+
+    // V1.1 Platform services (injected, non-owning)
+    auth::AuthService* auth_service_ = nullptr;
+    platform::PlatformService* platform_service_ = nullptr;
+    inference::InferenceBackend* inference_backend_ = nullptr;
+
+    // Cached platform data (updated each frame)
+    platform::WeatherInfo weather_cache_;
+    platform::PlatformInfo platform_info_cache_;
+    std::vector<platform::Announcement> announcements_cache_;
+    std::string time_string_cache_;
 
 };
 

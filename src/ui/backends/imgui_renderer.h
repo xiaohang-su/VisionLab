@@ -61,6 +61,18 @@ private:
         const UIContext& context
     );
 
+    // V1.1 Platform UI helpers
+    void build_top_bar(const UIContext& context);
+    void build_side_nav();
+    void build_main_area(const UIContext& context);
+    void build_bottom_bar(const UIContext& context);
+    void build_login_page(const UIContext& context);
+    void build_ai_page(const UIContext& context);
+    void build_monitor_page(const UIContext& context);
+    void build_models_page(const UIContext& context);
+    void build_settings_page(const UIContext& context);
+    void build_about_page(const UIContext& context);
+
 
     Win32Window window_;
 
@@ -78,6 +90,14 @@ private:
 
 
     bool initialized_ = false;
+
+    // V1.1 Platform UI state
+    enum class NavPage { AI, Monitor, Models, Settings, About };
+    NavPage current_page_ = NavPage::AI;
+
+    char card_input_[256] = "";
+    char login_message_[256] = "";
+    bool login_attempted_ = false;
 
 };
 

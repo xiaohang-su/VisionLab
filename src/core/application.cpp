@@ -212,6 +212,24 @@ void Application::run()
         ui_context_.frame_count = frame_count;
         ui_context_.metrics = &metrics_;
 
+        // V1.1: Update platform/auth fields
+        if (auth_service_ != nullptr)
+        {
+            ui_context_.session = &auth_service_->session();
+        }
+
+        if (platform_service_ != nullptr)
+        {
+            weather_cache_ = platform_service_->get_weather();
+            time_string_cache_ = platform_service_->get_time_string();
+            announcements_cache_ = platform_service_->get_announcements();
+
+            ui_context_.weather = &weather_cache_;
+            ui_context_.platform_info = &platform_info_cache_;
+            ui_context_.announcements = &announcements_cache_;
+            ui_context_.time_string = time_string_cache_.c_str();
+        }
+
         metrics_.frame_count = frame_count;
         metrics_.logger_ms = logger_.total_log_ms();
         metrics_.log_count = logger_.log_count();
@@ -387,6 +405,31 @@ void Application::set_renderer(
 )
 {
     ui_.set_renderer(renderer);
+}
+
+
+
+void Application::set_auth_service(auth::AuthService* service)
+{
+    auth_service_ = service;
+}
+
+
+
+void Application::set_platform_service(platform::PlatformService* service)
+{
+    platform_service_ = service;
+    if (service != nullptr)
+    {
+        platform_info_cache_ = service->info();
+    }
+}
+
+
+
+void Application::set_inference_backend(inference::InferenceBackend* backend)
+{
+    inference_backend_ = backend;
 }
 
 
