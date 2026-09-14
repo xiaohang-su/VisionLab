@@ -4,11 +4,11 @@ A modular computer vision experimentation and runtime platform for Windows 10/11
 
 ## Version
 
-**V0.9.1 - Logger Performance Analysis**
+**V0.9.2 - Frame Lifetime Analysis**
 
 ## Current Status
 
-VisionLab V0.9.1 is released.
+VisionLab V0.9.2 is released.
 
 The current foundation includes:
 
@@ -54,6 +54,16 @@ V0.9.1 adds **logger performance measurement**:
 - No behavior change: synchronous IO, per-call flush, original API preserved
 - No async buffering, no thread, no queue introduced
 - Purpose: measure whether Logger is a bottleneck before optimizing
+
+V0.9.2 adds **frame lifetime measurement**:
+
+- Frame data size tracking (frame_data_bytes)
+- Vector allocation monitoring (frame_allocation_count)
+- Data copy bytes tracking (frame_copy_bytes)
+- Texture upload bytes and count monitoring (texture_upload_bytes, texture_upload_count)
+- No behavior change: Frame API, Capture, VisionPipeline all unchanged
+- No FramePool, no MemoryPool, no optimization introduced
+- Purpose: measure frame memory cost before optimizing pipeline
 
 V0.9 does **not** include Logger buffer optimization, FramePool, memory pool, benchmark system, AI Runtime, ONNX Runtime, CUDA, or TensorRT.
 
@@ -201,11 +211,12 @@ Windows-specific sources are excluded via `if(WIN32)` in CMake.
 | V0.8.1 | ImGui DX11 UI renderer (Frame viewer + overlays + analysis panel) |
 | V0.9.0 | Runtime metrics with per-stage frame timing (Timer + RuntimeMetrics + UI display) |
 | V0.9.1 | Logger performance analysis (timing instrumentation, no behavior change) |
+| V0.9.2 | Frame lifetime analysis (allocation, copy, texture upload measurement) |
 
 ---
 
 ## Roadmap
 
-- **V0.9.2**: Frame lifetime analysis (allocation, copy, texture upload measurement)
+- **V0.9.3**: FramePool evaluation (based on V0.9.2 metrics data)
 - **V0.9.x**: Runtime optimization based on metrics data
 - **V1.0**: Stable platform release
